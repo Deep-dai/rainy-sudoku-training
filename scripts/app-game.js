@@ -120,7 +120,7 @@ function createPuzzle(size, difficulty) {
     const saved = puzzle[row][col];
     puzzle[row][col] = 0;
 
-    if (countSolutions(puzzle, size, 2) === 1) {
+    if (countSolutions(puzzle, size, 2) === 1 && matchesDifficulty(puzzle, size, difficulty)) {
       clues -= 1;
     } else {
       puzzle[row][col] = saved;
@@ -128,6 +128,14 @@ function createPuzzle(size, difficulty) {
   }
 
   return { solution, puzzle };
+}
+
+function matchesDifficulty(grid, size, difficulty) {
+  if (difficulty === "easy") {
+    return canSolveWithBasicLogic(grid, size, false);
+  }
+
+  return canSolveWithBasicLogic(grid, size, true);
 }
 
 function createSolution(size) {
@@ -252,4 +260,112 @@ function countSolutions(grid, size, limit = 2) {
 
     empties[bestEmptyPosition] = index;
   }
+}
+
+function canSolveWithBasicLogic(grid, size, allowHiddenSingles) {
+  const config = SIZE_CONFIG[size];
+  const board = grid.map((row) => row.slice());
+  let progress = true;
+
+  while (progress) {
+    progress = false;
+
+    for (let row = 0; row < size; row += 1) {
+      for (let col = 0; col < size; col += 1) {
+        if (board[row][col]) {
+          continue;
+        }
+
+        const candidates = getGridCandidates(board, row, col, config, size);
+        if (candidates.length === 0) {
+          return false;
+        }
+
+        if (candidates.length === 1) {
+          board[row][col] = candidates[0];
+          progress = true;
+        }
+      }
+    }
+
+    if (!progress && allowHiddenSingles) {
+      progress = fillHiddenSingles(board, config, size);
+    }
+  }
+
+  return board.every((row) => row.every(Boolean));
+}
+
+function fillHiddenSingles(board, config, size) {
+  const units = getGridUnits(config, size);
+
+  for (const unit of units) {
+    for (let number = 1; number <= size; number += 1) {
+      const matches = [];
+
+      for (const [row, col] of unit) {
+        if (board[row][col]) {
+          continue;
+        }
+
+        const candidates = getGridCandidates(board, row, col, config, size);
+        if (candidates.includes(number)) {
+          matches.push([row, col]);
+        }
+      }
+
+      if (matches.length === 1) {
+        const [row, col] = matches[0];
+        board[row][col] = number;
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function getGridUnits(config, size) {
+  const units = [];
+
+  for (let row = 0; row < size; row += 1) {
+    units.push([...Array(size).keys()].map((col) => [row, col]));
+  }
+
+  for (let col = 0; col < size; col += 1) {
+    units.push([...Array(size).keys()].map((row) => [row, col]));
+  }
+
+  for (let boxRow = 0; boxRow < size; boxRow += config.boxRows) {
+    for (let boxCol = 0; boxCol < size; boxCol += config.boxCols) {
+      const unit = [];
+      for (let row = boxRow; row < boxRow + config.boxRows; row += 1) {
+        for (let col = boxCol; col < boxCol + config.boxCols; col += 1) {
+          unit.push([row, col]);
+        }
+      }
+      units.push(unit);
+    }
+  }
+
+  return units;
+}
+
+function getGridCandidates(board, row, col, config, size) {
+  const used = new Set();
+
+  for (let index = 0; index < size; index += 1) {
+    used.add(board[row][index]);
+    used.add(board[index][col]);
+  }
+
+  const startRow = Math.floor(row / config.boxRows) * config.boxRows;
+  const startCol = Math.floor(col / config.boxCols) * config.boxCols;
+  for (let r = startRow; r < startRow + config.boxRows; r += 1) {
+    for (let c = startCol; c < startCol + config.boxCols; c += 1) {
+      used.add(board[r][c]);
+    }
+  }
+
+  return [...Array(size).keys()].map((number) => number + 1).filter((number) => !used.has(number));
 }
