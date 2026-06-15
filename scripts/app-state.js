@@ -12,8 +12,8 @@ const SIZE_CONFIG = {
     boxRows: 3,
     boxCols: 3,
     clues: {
-      easy: 42,
-      next: 34,
+      easy: 54,
+      next: 42,
     },
     defaultMinutes: 12,
   },
