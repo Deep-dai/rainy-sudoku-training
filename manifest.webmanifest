@@ -1,0 +1,19 @@
+{
+  "name": "Rainy 数独训练",
+  "short_name": "Rainy 数独",
+  "description": "适合孩子练习 6 宫格和 9 宫格数独的离线训练工具。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffaf0",
+  "theme_color": "#3ab7a6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
