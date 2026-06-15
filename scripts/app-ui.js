@@ -9,6 +9,10 @@ function renderShellState() {
   els.app.classList.toggle("is-race", state.mode === "race");
   els.app.classList.toggle("is-finished", state.locked);
   els.board.style.setProperty("--size", state.size);
+  els.board.style.setProperty("--box-rows", state.boxRows);
+  els.board.style.setProperty("--box-cols", state.boxCols);
+  els.board.style.setProperty("--boxes-per-row", state.size / state.boxCols);
+  els.board.dataset.size = String(state.size);
   els.numberPad.style.setProperty("--pad-cols", 3);
   els.modeLabel.textContent = COPY[state.mode];
 }
@@ -18,42 +22,64 @@ function renderBoard() {
   const display = getDisplayValues();
   const selectedValue = state.selected === null ? 0 : display[state.selected];
   const related = getRelatedCells(state.selected);
+  const boxesPerRow = state.size / state.boxCols;
+  const boxCount = state.size;
 
-  for (let index = 0; index < state.size * state.size; index += 1) {
-    const row = Math.floor(index / state.size);
-    const col = index % state.size;
-    const value = display[index];
-    const isGiven = getPuzzleValue(index) !== 0;
-    const cell = document.createElement("button");
-    cell.type = "button";
-    cell.className = "cell";
-    cell.dataset.index = String(index);
-    cell.dataset.boxRight = String((col + 1) % state.boxCols === 0 && col !== state.size - 1);
-    cell.dataset.boxBottom = String((row + 1) % state.boxRows === 0 && row !== state.size - 1);
-    cell.setAttribute("aria-label", `第 ${row + 1} 行第 ${col + 1} 列${value ? `，数字 ${value}` : ""}`);
+  for (let boxIndex = 0; boxIndex < boxCount; boxIndex += 1) {
+    const boxRow = Math.floor(boxIndex / boxesPerRow);
+    const boxCol = boxIndex % boxesPerRow;
+    const cluster = document.createElement("div");
+    cluster.className = "box-cluster";
+    cluster.dataset.box = String(boxIndex);
+    cluster.setAttribute("role", "group");
+    cluster.setAttribute("aria-label", `第 ${boxIndex + 1} 宫`);
 
-    cell.classList.toggle("is-given", isGiven);
-    cell.classList.toggle("is-selected", index === state.selected);
-    cell.classList.toggle("is-related", related.has(index));
-    cell.classList.toggle("is-same-number", Boolean(value && selectedValue && value === selectedValue));
-    cell.classList.toggle("is-conflict", state.mode === "practice" && state.conflicts.has(index));
-    cell.classList.toggle("is-dead-end", state.mode === "practice" && state.deadEnds.has(index));
-    cell.classList.toggle("is-wrong", state.wrongs.has(index));
-    cell.classList.toggle("is-hint", state.hints.has(index));
-    cell.classList.toggle("is-locked", state.locked);
-
-    if (value) {
-      const valueNode = document.createElement("span");
-      valueNode.className = "cell-value";
-      valueNode.textContent = value;
-      cell.append(valueNode);
-    } else if (state.notes[index]?.size) {
-      cell.append(createNotesNode(index));
+    for (let localRow = 0; localRow < state.boxRows; localRow += 1) {
+      for (let localCol = 0; localCol < state.boxCols; localCol += 1) {
+        const row = boxRow * state.boxRows + localRow;
+        const col = boxCol * state.boxCols + localCol;
+        const index = row * state.size + col;
+        cluster.append(createCell(index, row, col, display, selectedValue, related));
+      }
     }
 
-    cell.addEventListener("click", () => selectCell(index));
-    els.board.append(cell);
+    els.board.append(cluster);
   }
+}
+
+function createCell(index, row, col, display, selectedValue, related) {
+  const value = display[index];
+  const isGiven = getPuzzleValue(index) !== 0;
+  const cell = document.createElement("button");
+  cell.type = "button";
+  cell.className = "cell";
+  cell.dataset.index = String(index);
+  cell.dataset.value = value ? String(value) : "empty";
+  cell.dataset.box = String(getBoxIndex(row, col, { boxRows: state.boxRows, boxCols: state.boxCols }));
+  cell.style.setProperty("--tilt", `${((row * 3 + col * 5) % 7) - 3}deg`);
+  cell.setAttribute("aria-label", `第 ${row + 1} 行第 ${col + 1} 列${value ? `，数字 ${value}` : ""}`);
+
+  cell.classList.toggle("is-given", isGiven);
+  cell.classList.toggle("is-selected", index === state.selected);
+  cell.classList.toggle("is-related", related.has(index));
+  cell.classList.toggle("is-same-number", Boolean(value && selectedValue && value === selectedValue));
+  cell.classList.toggle("is-conflict", state.mode === "practice" && state.conflicts.has(index));
+  cell.classList.toggle("is-dead-end", state.mode === "practice" && state.deadEnds.has(index));
+  cell.classList.toggle("is-wrong", state.wrongs.has(index));
+  cell.classList.toggle("is-hint", state.hints.has(index));
+  cell.classList.toggle("is-locked", state.locked);
+
+  if (value) {
+    const valueNode = document.createElement("span");
+    valueNode.className = "cell-value";
+    valueNode.textContent = value;
+    cell.append(valueNode);
+  } else if (state.notes[index]?.size) {
+    cell.append(createNotesNode(index));
+  }
+
+  cell.addEventListener("click", () => selectCell(index));
+  return cell;
 }
 
 function createNotesNode(index) {
@@ -82,6 +108,7 @@ function renderNumberPad() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "num-button";
+    button.dataset.value = String(number);
     button.textContent = number;
     button.disabled = state.locked;
     button.classList.toggle("is-active", state.noteMode ? selectedNotes.has(number) : selectedValue === number);
