@@ -5,6 +5,9 @@
   --panel: #ffffff;
   --line: #d8e2e9;
   --strong-line: #26364a;
+  --lavender: #c37bd1;
+  --lavender-deep: #a651b8;
+  --lavender-soft: #f3ddfa;
   --teal: #3ab7a6;
   --teal-dark: #158174;
   --coral: #ff7e67;
@@ -27,9 +30,10 @@ body {
   color: var(--ink);
   font-family: ui-rounded, "SF Pro Rounded", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
   background:
-    radial-gradient(circle at 18px 18px, rgba(255, 207, 86, 0.5) 0 4px, transparent 5px),
-    linear-gradient(135deg, #e7fbf5 0%, #fff7df 50%, #ffe8ec 100%);
-  background-size: 56px 56px, auto;
+    radial-gradient(circle at 22px 22px, rgba(255, 212, 92, 0.48) 0 5px, transparent 6px),
+    radial-gradient(circle at 86% 12%, rgba(195, 123, 209, 0.22), transparent 30%),
+    linear-gradient(135deg, #fff4dd 0%, #f8e5ff 45%, #e8fbf4 100%);
+  background-size: 64px 64px, auto, auto;
 }
 
 button,
@@ -45,7 +49,7 @@ button {
 
 button:focus-visible,
 input:focus-visible {
-  outline: 4px solid rgba(58, 183, 166, 0.35);
+  outline: 4px solid rgba(166, 81, 184, 0.34);
   outline-offset: 3px;
 }
 
@@ -93,7 +97,7 @@ input:focus-visible {
 .tool-button,
 .segment {
   min-height: 44px;
-  border-radius: 8px;
+  border-radius: 999px;
   color: var(--ink);
   transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
@@ -142,9 +146,9 @@ svg circle {
   gap: 12px;
   padding: 12px;
   margin-bottom: 16px;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
+  border-radius: 22px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(8px);
 }
@@ -166,8 +170,8 @@ svg circle {
   grid-auto-flow: column;
   gap: 4px;
   padding: 4px;
-  background: #edf5f6;
-  border-radius: 8px;
+  background: #f1e1f8;
+  border-radius: 999px;
 }
 
 .segment {
@@ -179,8 +183,8 @@ svg circle {
 
 .segment.is-active {
   color: #ffffff;
-  background: var(--teal-dark);
-  box-shadow: 0 6px 14px rgba(21, 129, 116, 0.22);
+  background: var(--lavender-deep);
+  box-shadow: 0 6px 14px rgba(166, 81, 184, 0.24);
 }
 
 .timer-input-wrap {
@@ -189,8 +193,8 @@ svg circle {
   gap: 8px;
   min-height: 44px;
   padding: 4px 10px;
-  background: #edf5f6;
-  border-radius: 8px;
+  background: #f1e1f8;
+  border-radius: 999px;
   font-weight: 800;
 }
 
@@ -198,7 +202,7 @@ svg circle {
   width: 58px;
   height: 36px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 999px;
   color: var(--ink);
   background: #ffffff;
   text-align: center;
@@ -212,13 +216,13 @@ svg circle {
   gap: 8px;
   padding: 11px 16px;
   color: #ffffff;
-  background: var(--coral);
+  background: linear-gradient(180deg, #ff8f70, #ff6f88);
   font-weight: 900;
-  box-shadow: 0 10px 20px rgba(255, 126, 103, 0.26);
+  box-shadow: 0 10px 20px rgba(255, 111, 136, 0.28);
 }
 
 .primary-button:hover {
-  background: #f56f58;
+  background: linear-gradient(180deg, #ff7e67, #f85d7d);
 }
 
 .game-layout {
@@ -232,7 +236,7 @@ svg circle {
 .side-panel {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.98);
-  border-radius: 8px;
+  border-radius: 24px;
   box-shadow: var(--shadow);
 }
 
@@ -264,8 +268,8 @@ svg circle {
   min-height: 38px;
   padding: 8px 10px;
   color: var(--ink);
-  background: #f1f7f8;
-  border-radius: 8px;
+  background: #f7effb;
+  border-radius: 999px;
   font-weight: 900;
 }
 
@@ -280,7 +284,7 @@ svg circle {
   align-items: center;
   padding: 8px 10px;
   margin-bottom: 12px;
-  border-radius: 8px;
+  border-radius: 18px;
   color: #5f3b00;
   background: #fff0bc;
   font-weight: 800;
@@ -303,74 +307,203 @@ svg circle {
 
 .sudoku-board {
   --size: 9;
+  --box-rows: 3;
+  --box-cols: 3;
+  --boxes-per-row: 3;
+  --cell-gap: clamp(5px, 0.9vw, 9px);
+  --box-gap: clamp(9px, 1.6vw, 16px);
   display: grid;
-  grid-template-columns: repeat(var(--size), minmax(0, 1fr));
-  width: min(100%, 620px);
+  grid-template-columns: repeat(var(--boxes-per-row), minmax(0, 1fr));
+  gap: var(--box-gap);
+  width: min(100%, 650px);
   aspect-ratio: 1;
-  overflow: hidden;
-  border: 4px solid var(--strong-line);
-  border-radius: 8px;
-  background: var(--strong-line);
-  box-shadow: inset 0 0 0 1px var(--strong-line);
+  padding: clamp(12px, 2.2vw, 22px);
+  overflow: visible;
+  border: 0;
+  border-radius: 30px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 35%),
+    linear-gradient(180deg, #d698e0, var(--lavender));
+  box-shadow:
+    inset 0 0 0 5px rgba(166, 81, 184, 0.35),
+    inset 0 0 0 12px rgba(255, 255, 255, 0.12),
+    0 22px 48px rgba(102, 55, 120, 0.22);
+}
+
+.box-cluster {
+  display: grid;
+  grid-template-columns: repeat(var(--box-cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--box-rows), minmax(0, 1fr));
+  gap: var(--cell-gap);
+  aspect-ratio: var(--box-cols) / var(--box-rows);
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(7px, 1vw, 12px);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.08)),
+    rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 0 0 2px rgba(166, 81, 184, 0.12),
+    0 6px 14px rgba(102, 55, 120, 0.14);
+}
+
+.sudoku-board[data-size="9"] {
+  --cell-gap: clamp(3px, 0.6vw, 6px);
+  --box-gap: clamp(7px, 1vw, 11px);
+  width: min(100%, 680px);
+}
+
+.sudoku-board[data-size="9"] .box-cluster {
+  padding: clamp(5px, 0.75vw, 8px);
+  border-radius: 17px;
 }
 
 .cell {
+  --sticker-bg: #ffffff;
+  --digit: var(--ink);
   position: relative;
   display: grid;
   place-items: center;
   min-width: 0;
   min-height: 0;
   padding: 0;
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  background: #ffffff;
-  color: var(--ink);
+  border: 2px solid rgba(255, 255, 255, 0.82);
+  border-radius: 50%;
+  background: #fffdfb;
+  color: var(--digit);
   font-size: 1.65rem;
   font-weight: 950;
   line-height: 1;
+  box-shadow:
+    inset 0 -5px 10px rgba(38, 54, 74, 0.07),
+    0 4px 0 rgba(166, 81, 184, 0.28),
+    0 10px 18px rgba(80, 45, 96, 0.1);
 }
 
-.cell[data-box-right="true"] {
-  border-right: 4px solid var(--strong-line);
+.sudoku-board[data-size="9"] .cell {
+  --digit: #223049;
+  font-size: 1.24rem;
+  font-weight: 980;
+  box-shadow:
+    inset 0 -3px 7px rgba(38, 54, 74, 0.06),
+    0 3px 0 rgba(166, 81, 184, 0.22),
+    0 7px 12px rgba(80, 45, 96, 0.08);
 }
 
-.cell[data-box-bottom="true"] {
-  border-bottom: 4px solid var(--strong-line);
+.sudoku-board[data-size="9"] .notes {
+  font-size: 0.52rem;
+}
+
+.sudoku-board[data-size="9"] .cell:not([data-value="empty"]) .cell-value {
+  transform: none;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.38);
+}
+
+.cell[data-value="1"] {
+  --sticker-bg: #efc695;
+  --digit: #ffffff;
+}
+
+.cell[data-value="2"] {
+  --sticker-bg: #d9c6ea;
+  --digit: #202638;
+}
+
+.cell[data-value="3"] {
+  --sticker-bg: #cfa9aa;
+  --digit: #22c8b0;
+}
+
+.cell[data-value="4"] {
+  --sticker-bg: #b9c8e6;
+  --digit: #11733e;
+}
+
+.cell[data-value="5"] {
+  --sticker-bg: #e9afd3;
+  --digit: #e9ea25;
+}
+
+.cell[data-value="6"] {
+  --sticker-bg: #b9dc90;
+  --digit: #ffffff;
+}
+
+.cell[data-value="7"] {
+  --sticker-bg: #f0c69b;
+  --digit: #ffffff;
+}
+
+.cell[data-value="8"] {
+  --sticker-bg: #c5b2dd;
+  --digit: #642d7a;
+}
+
+.cell[data-value="9"] {
+  --sticker-bg: #cde9f7;
+  --digit: #26364a;
+}
+
+.cell:not([data-value="empty"]) {
+  background: var(--sticker-bg);
+}
+
+.cell:not([data-value="empty"]) .cell-value {
+  transform: rotate(var(--tilt));
+  text-shadow:
+    0 3px 0 rgba(38, 54, 74, 0.16),
+    0 8px 14px rgba(38, 54, 74, 0.18);
 }
 
 .cell.is-given {
-  color: #143f7a;
-  background: #ecf6ff;
+  box-shadow:
+    inset 0 -5px 10px rgba(38, 54, 74, 0.1),
+    0 4px 0 rgba(166, 81, 184, 0.32),
+    0 10px 18px rgba(80, 45, 96, 0.12);
 }
 
 .cell.is-selected {
-  background: #fff0bc;
-  box-shadow: inset 0 0 0 4px var(--yellow);
+  border-color: #fff1a8;
+  box-shadow:
+    inset 0 0 0 4px #fff1a8,
+    inset 0 -5px 10px rgba(38, 54, 74, 0.07),
+    0 0 0 5px rgba(255, 212, 92, 0.32),
+    0 12px 24px rgba(102, 55, 120, 0.2);
   z-index: 2;
 }
 
 .cell.is-related {
-  background: #eef9f6;
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.7),
+    0 4px 0 rgba(166, 81, 184, 0.26),
+    0 10px 18px rgba(80, 45, 96, 0.09);
 }
 
 .cell.is-same-number {
-  background: #dff6ec;
+  border-color: rgba(58, 183, 166, 0.85);
 }
 
 .cell.is-conflict,
 .cell.is-wrong {
   color: #a73320;
-  background: var(--red-soft);
+  background: #ffd7d0;
+  border-color: #ff816f;
 }
 
 .cell.is-dead-end {
-  background: var(--red-soft);
-  box-shadow: inset 0 0 0 4px #ff9a87;
+  background: #ffd7d0;
+  box-shadow:
+    inset 0 0 0 4px #ff9a87,
+    0 4px 0 rgba(166, 81, 184, 0.28);
 }
 
 .cell.is-hint {
-  background: #ffe6f0;
-  box-shadow: inset 0 0 0 4px var(--pink);
+  border-color: var(--pink);
+  box-shadow:
+    inset 0 0 0 4px rgba(249, 167, 194, 0.68),
+    0 4px 0 rgba(166, 81, 184, 0.28);
 }
 
 .cell.is-locked {
@@ -388,7 +521,7 @@ svg circle {
   height: 92%;
   gap: 1px;
   padding: 3px;
-  color: #617086;
+  color: #6f4e82;
   font-size: 0.68rem;
   font-weight: 800;
   line-height: 1;
@@ -415,9 +548,10 @@ svg circle {
   z-index: 30;
   width: min(260px, calc(100vw - 24px));
   padding: 10px;
-  border: 2px solid rgba(58, 183, 166, 0.45);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.96);
+  border: 3px solid rgba(166, 81, 184, 0.28);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(250, 235, 255, 0.94));
   box-shadow: 0 18px 42px rgba(38, 54, 74, 0.24);
   transform: translateX(-50%);
   backdrop-filter: blur(8px);
@@ -431,19 +565,69 @@ svg circle {
   display: grid;
   place-items: center;
   min-height: 52px;
-  border-radius: 8px;
-  color: var(--ink);
-  background: #ffffff;
-  border: 2px solid #d7e6ee;
+  border-radius: 999px;
+  color: var(--digit, var(--ink));
+  background: var(--sticker-bg, #ffffff);
+  border: 2px solid rgba(255, 255, 255, 0.86);
   font-size: 1.45rem;
   font-weight: 950;
-  box-shadow: 0 6px 12px rgba(38, 54, 74, 0.08);
+  text-shadow: 0 3px 0 rgba(38, 54, 74, 0.14);
+  box-shadow:
+    inset 0 -4px 8px rgba(38, 54, 74, 0.07),
+    0 6px 12px rgba(38, 54, 74, 0.12);
 }
 
 .num-button:hover,
 .num-button.is-active {
   border-color: var(--teal);
-  background: var(--green-soft);
+  box-shadow:
+    inset 0 0 0 3px rgba(58, 183, 166, 0.25),
+    0 8px 16px rgba(38, 54, 74, 0.15);
+}
+
+.num-button[data-value="1"] {
+  --sticker-bg: #efc695;
+  --digit: #ffffff;
+}
+
+.num-button[data-value="2"] {
+  --sticker-bg: #d9c6ea;
+  --digit: #202638;
+}
+
+.num-button[data-value="3"] {
+  --sticker-bg: #cfa9aa;
+  --digit: #22c8b0;
+}
+
+.num-button[data-value="4"] {
+  --sticker-bg: #b9c8e6;
+  --digit: #11733e;
+}
+
+.num-button[data-value="5"] {
+  --sticker-bg: #e9afd3;
+  --digit: #e9ea25;
+}
+
+.num-button[data-value="6"] {
+  --sticker-bg: #b9dc90;
+  --digit: #ffffff;
+}
+
+.num-button[data-value="7"] {
+  --sticker-bg: #f0c69b;
+  --digit: #ffffff;
+}
+
+.num-button[data-value="8"] {
+  --sticker-bg: #c5b2dd;
+  --digit: #642d7a;
+}
+
+.num-button[data-value="9"] {
+  --sticker-bg: #cde9f7;
+  --digit: #26364a;
 }
 
 .num-button:disabled,
@@ -466,15 +650,15 @@ svg circle {
   gap: 8px;
   padding: 11px 10px;
   color: var(--ink);
-  background: #f4f8f9;
-  border: 2px solid #dce8ee;
+  background: #fbf6ff;
+  border: 2px solid #ead5f1;
   font-weight: 900;
 }
 
 .tool-button[aria-pressed="true"] {
   color: #ffffff;
-  background: var(--teal-dark);
-  border-color: var(--teal-dark);
+  background: var(--lavender-deep);
+  border-color: var(--lavender-deep);
 }
 
 .race-only {
@@ -483,11 +667,11 @@ svg circle {
 
 .coach-box {
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 22px;
   background:
-    linear-gradient(90deg, rgba(122, 183, 255, 0.22), rgba(255, 212, 92, 0.24)),
+    linear-gradient(90deg, rgba(195, 123, 209, 0.22), rgba(255, 212, 92, 0.24)),
     #ffffff;
-  border: 2px dashed rgba(58, 183, 166, 0.5);
+  border: 2px dashed rgba(166, 81, 184, 0.44);
 }
 
 .coach-box h2 {
@@ -506,7 +690,7 @@ svg circle {
   width: min(420px, calc(100% - 28px));
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 24px;
   color: var(--ink);
   background: #ffffff;
   box-shadow: 0 26px 80px rgba(38, 54, 74, 0.35);
@@ -620,11 +804,19 @@ svg circle {
   }
 
   .sudoku-board {
-    border-width: 3px;
+    --cell-gap: 4px;
+    --box-gap: 7px;
+    border-radius: 22px;
+    padding: 10px;
   }
 
   .cell {
-    font-size: 1.28rem;
+    font-size: 1.18rem;
+    border-width: 1px;
+  }
+
+  .sudoku-board[data-size="9"] .cell {
+    font-size: 0.98rem;
   }
 
   .notes {
