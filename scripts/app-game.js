@@ -10,11 +10,34 @@ function bindEvents() {
     button.addEventListener("click", () => {
       const setting = button.dataset.setting;
       const rawValue = button.dataset.value;
-      settings[setting] = setting === "size" ? Number(rawValue) : rawValue;
+      settings[setting] = coerceSettingValue(setting, rawValue);
 
       if (setting === "size") {
         settings.durationMinutes = SIZE_CONFIG[settings.size].defaultMinutes;
         els.durationInput.value = settings.durationMinutes;
+      }
+
+      if (setting === "timerVisible" || setting === "errorHints") {
+        state.timerVisible = settings.timerVisible;
+        state.errorHints = settings.errorHints;
+        if (!state.errorHints) {
+          state.wrongs = new Set();
+        } else if (state.mode === "practice") {
+          updateBoardWarnings();
+        }
+        applySettingsToControls();
+        render();
+        updateStatus();
+        if (setting === "errorHints") {
+          updateCoachText();
+        }
+        saveSettings();
+        if (setting === "timerVisible") {
+          setMessage(settings.timerVisible ? "计时器会实时显示。" : "计时器已关闭显示，完成时仍会告诉你用时。", "good");
+        } else {
+          setMessage(settings.errorHints ? "错误提示已开启。" : "错误提示已关闭，填错时不会标红。", "good");
+        }
+        return;
       }
 
       applySettingsToControls();
@@ -68,6 +91,8 @@ function startNewGame() {
   state.difficulty = settings.difficulty;
   state.mode = settings.mode;
   state.durationSeconds = clampMinutes(settings.durationMinutes) * 60;
+  state.timerVisible = settings.timerVisible;
+  state.errorHints = settings.errorHints;
   state.selected = null;
   state.noteMode = false;
   state.conflicts = new Set();
@@ -104,14 +129,42 @@ function startNewGame() {
 }
 
 function createPuzzle(size, difficulty) {
+  const difficultyConfig = getDifficultyConfig(size, difficulty);
+  const maxAttempts = size === 9 ? 32 : 12;
+  let best = null;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const targetBlanks = randomInt(difficultyConfig.min, difficultyConfig.max);
+    const candidate = createPuzzleAttempt(size, difficulty, targetBlanks);
+    candidate.openingSingles = countOpeningSingles(candidate.puzzle, size);
+    candidate.meetsOpeningGoal = meetsOpeningGoal(candidate, difficultyConfig);
+
+    if (!best || getCandidateScore(candidate) > getCandidateScore(best)) {
+      best = candidate;
+    }
+
+    if (candidate.blankCount >= difficultyConfig.min && candidate.meetsOpeningGoal) {
+      return {
+        solution: candidate.solution,
+        puzzle: candidate.puzzle,
+      };
+    }
+  }
+
+  return {
+    solution: best.solution,
+    puzzle: best.puzzle,
+  };
+}
+
+function createPuzzleAttempt(size, difficulty, targetBlanks) {
   const solution = createSolution(size);
   const puzzle = solution.map((row) => row.slice());
-  const targetClues = SIZE_CONFIG[size].clues[difficulty];
   const cells = shuffle([...Array(size * size).keys()]);
-  let clues = size * size;
+  let blankCount = 0;
 
   for (const index of cells) {
-    if (clues <= targetClues) {
+    if (blankCount >= targetBlanks) {
       break;
     }
 
@@ -121,17 +174,55 @@ function createPuzzle(size, difficulty) {
     puzzle[row][col] = 0;
 
     if (countSolutions(puzzle, size, 2) === 1 && matchesDifficulty(puzzle, size, difficulty)) {
-      clues -= 1;
+      blankCount += 1;
     } else {
       puzzle[row][col] = saved;
     }
   }
 
-  return { solution, puzzle };
+  return { solution, puzzle, blankCount };
+}
+
+function getDifficultyConfig(size, difficulty) {
+  return SIZE_CONFIG[size].blanks[difficulty] ?? SIZE_CONFIG[size].blanks.super;
+}
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function meetsOpeningGoal(candidate, difficultyConfig) {
+  return candidate.openingSingles >= (difficultyConfig.openingSingles ?? 0);
+}
+
+function getCandidateScore(candidate) {
+  const openingBonus = candidate.meetsOpeningGoal ? 1000 : 0;
+  return openingBonus + candidate.blankCount + candidate.openingSingles / 100;
+}
+
+function countOpeningSingles(grid, size) {
+  const config = SIZE_CONFIG[size];
+  let singles = 0;
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      if (grid[row][col]) {
+        continue;
+      }
+
+      if (getGridCandidates(grid, row, col, config, size).length === 1) {
+        singles += 1;
+      }
+    }
+  }
+
+  return singles;
 }
 
 function matchesDifficulty(grid, size, difficulty) {
-  if (difficulty === "easy") {
+  const difficultyConfig = getDifficultyConfig(size, difficulty);
+
+  if (!difficultyConfig.allowHiddenSingles) {
     return canSolveWithBasicLogic(grid, size, false);
   }
 
