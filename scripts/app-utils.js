@@ -89,7 +89,7 @@ function handleKeyboard(event) {
     ArrowUp: [Math.max(0, row - 1), col],
     ArrowDown: [Math.min(state.size - 1, row + 1), col],
     ArrowLeft: [row, Math.max(0, col - 1)],
-    ArrowRight: [row, Math.min(state.size - 1), col + 1],
+    ArrowRight: [row, Math.min(state.size - 1, col + 1)],
   }[key];
 
   selectCell(next[0] * state.size + next[1]);
