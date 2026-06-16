@@ -141,7 +141,7 @@ svg circle {
 
 .control-band {
   display: grid;
-  grid-template-columns: repeat(5, auto);
+  grid-template-columns: auto minmax(330px, 1fr) auto auto auto auto auto;
   align-items: end;
   gap: 12px;
   padding: 12px;
@@ -172,6 +172,21 @@ svg circle {
   padding: 4px;
   background: #f1e1f8;
   border-radius: 999px;
+}
+
+.difficulty-segmented {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(4, minmax(max-content, 1fr));
+}
+
+.difficulty-segmented .segment {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.timer-display-group .segmented,
+.hint-display-group .segmented {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .segment {
@@ -278,6 +293,10 @@ svg circle {
   background: var(--teal-dark);
 }
 
+.app-shell.is-timer-hidden .timer-pill {
+  background: #77667f;
+}
+
 .message-line {
   min-height: 38px;
   display: flex;
@@ -298,6 +317,11 @@ svg circle {
 .message-line.is-good {
   color: #0f695f;
   background: var(--green-soft);
+}
+
+.app-shell.is-error-hints-off .message-line:not(.is-alert):not(.is-good) {
+  background: #eef4ff;
+  color: #43536c;
 }
 
 .board-wrap {
@@ -353,6 +377,13 @@ svg circle {
   --cell-gap: clamp(3px, 0.6vw, 6px);
   --box-gap: clamp(7px, 1vw, 11px);
   width: min(100%, 680px);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 35%),
+    linear-gradient(180deg, #efb567, #d88a3e);
+  box-shadow:
+    inset 0 0 0 5px rgba(178, 101, 39, 0.3),
+    inset 0 0 0 12px rgba(255, 255, 255, 0.12),
+    0 22px 48px rgba(118, 75, 38, 0.2);
 }
 
 .sudoku-board[data-size="9"] .box-cluster {
@@ -446,7 +477,7 @@ svg circle {
   --digit: #26364a;
 }
 
-.cell:not([data-value="empty"]) {
+.cell.is-given:not([data-value="empty"]) {
   background: var(--sticker-bg);
 }
 
@@ -455,6 +486,21 @@ svg circle {
   text-shadow:
     0 3px 0 rgba(38, 54, 74, 0.16),
     0 8px 14px rgba(38, 54, 74, 0.18);
+}
+
+.cell.is-entry {
+  --digit: #555d69;
+  background: #fffdfb;
+  border-color: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    inset 0 -4px 9px rgba(38, 54, 74, 0.05),
+    0 3px 0 rgba(255, 255, 255, 0.58),
+    0 8px 14px rgba(80, 45, 96, 0.08);
+}
+
+.cell.is-entry .cell-value {
+  font-weight: 750;
+  text-shadow: none;
 }
 
 .cell.is-given {
@@ -736,6 +782,128 @@ svg circle {
   pointer-events: none;
 }
 
+@media (max-width: 1120px) {
+  .app-shell {
+    width: min(100% - 20px, 1040px);
+  }
+
+  .control-band {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .difficulty-group {
+    grid-column: span 2;
+  }
+
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr) 290px;
+    gap: 12px;
+  }
+
+  .side-panel {
+    padding: 12px;
+  }
+
+  .sudoku-board,
+  .sudoku-board[data-size="9"] {
+    width: min(100%, 620px);
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1180px) and (orientation: landscape) {
+  .app-shell {
+    padding: 10px 0 16px;
+  }
+
+  .topbar {
+    margin-bottom: 8px;
+  }
+
+  .brand h1 {
+    font-size: 1.55rem;
+  }
+
+  .brand p {
+    font-size: 0.92rem;
+  }
+
+  .mascot {
+    width: 48px;
+    height: 48px;
+  }
+
+  .control-band {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .difficulty-group {
+    grid-column: span 2;
+  }
+
+  .segment {
+    min-height: 40px;
+    padding: 7px 9px;
+    font-size: 0.92rem;
+  }
+
+  .timer-input-wrap {
+    min-height: 40px;
+  }
+
+  .board-panel,
+  .side-panel {
+    padding: 10px;
+  }
+
+  .status-strip {
+    margin-bottom: 6px;
+  }
+
+  .status-pill {
+    min-height: 34px;
+    padding: 6px 9px;
+  }
+
+  .message-line {
+    min-height: 34px;
+    padding: 6px 9px;
+    margin-bottom: 8px;
+  }
+
+  .sudoku-board,
+  .sudoku-board[data-size="9"] {
+    width: min(100%, 610px, calc(100vh - 260px));
+    padding: 8px;
+    border-radius: 22px;
+  }
+
+  .sudoku-board[data-size="9"] {
+    --cell-gap: 3px;
+    --box-gap: 7px;
+  }
+
+  .side-panel {
+    top: 8px;
+    gap: 10px;
+  }
+
+  .tool-button {
+    min-height: 42px;
+    padding: 8px 9px;
+  }
+
+  .coach-box {
+    padding: 10px;
+  }
+
+  .floating-pad {
+    width: min(286px, calc(100vw - 28px));
+  }
+}
+
 @media (max-width: 960px) {
   .control-band {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -790,12 +958,25 @@ svg circle {
     grid-template-columns: 1fr;
   }
 
+  .difficulty-group {
+    grid-column: auto;
+  }
+
   .primary-button {
     grid-column: auto;
   }
 
   .segmented {
     grid-auto-flow: column;
+  }
+
+  .difficulty-segmented {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 18px;
+  }
+
+  .difficulty-segmented .segment {
+    white-space: normal;
   }
 
   .board-panel,
