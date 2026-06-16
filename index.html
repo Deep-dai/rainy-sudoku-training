@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./app-icon.svg">
-    <link rel="stylesheet" href="./styles.css?v=5">
+    <link rel="stylesheet" href="./styles.css?v=7">
   </head>
   <body>
     <main class="app-shell">
@@ -49,11 +49,13 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group difficulty-group">
           <span class="control-label">难度</span>
-          <div class="segmented" role="group" aria-label="选择难度">
-            <button type="button" class="segment is-active" data-setting="difficulty" data-value="easy">基础</button>
-            <button type="button" class="segment" data-setting="difficulty" data-value="next">进阶</button>
+          <div class="segmented difficulty-segmented" role="group" aria-label="选择难度">
+            <button type="button" class="segment is-active" data-setting="difficulty" data-value="super">超级简单</button>
+            <button type="button" class="segment" data-setting="difficulty" data-value="very">非常简单</button>
+            <button type="button" class="segment" data-setting="difficulty" data-value="easy">简单</button>
+            <button type="button" class="segment" data-setting="difficulty" data-value="expert">高手难度</button>
           </div>
         </div>
 
@@ -72,6 +74,22 @@
             <span>分钟</span>
           </span>
         </label>
+
+        <div class="control-group timer-display-group">
+          <span class="control-label">计时显示</span>
+          <div class="segmented" role="group" aria-label="切换计时显示">
+            <button type="button" class="segment is-active" data-setting="timerVisible" data-value="on">开</button>
+            <button type="button" class="segment" data-setting="timerVisible" data-value="off">关</button>
+          </div>
+        </div>
+
+        <div class="control-group hint-display-group">
+          <span class="control-label">错误提示</span>
+          <div class="segmented" role="group" aria-label="切换错误提示">
+            <button type="button" class="segment is-active" data-setting="errorHints" data-value="on">开</button>
+            <button type="button" class="segment" data-setting="errorHints" data-value="off">关</button>
+          </div>
+        </div>
 
         <button class="primary-button" id="newGameButton" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -172,10 +190,10 @@
       </div>
     </dialog>
 
-    <script src="./scripts/app-state.js?v=5" defer></script>
-    <script src="./scripts/app-game.js?v=5" defer></script>
-    <script src="./scripts/app-ui.js?v=5" defer></script>
-    <script src="./scripts/app-rules.js?v=5" defer></script>
-    <script src="./scripts/app-utils.js?v=5" defer></script>
+    <script src="./scripts/app-state.js?v=7" defer></script>
+    <script src="./scripts/app-game.js?v=7" defer></script>
+    <script src="./scripts/app-ui.js?v=7" defer></script>
+    <script src="./scripts/app-rules.js?v=7" defer></script>
+    <script src="./scripts/app-utils.js?v=7" defer></script>
   </body>
 </html>
