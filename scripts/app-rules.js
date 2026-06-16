@@ -4,6 +4,14 @@ function checkPracticeBoard() {
   }
 
   updateBoardWarnings();
+  if (!state.errorHints) {
+    state.wrongs = new Set();
+    setMessage("错误提示已关闭，系统不会标红，继续自己检查。", "good");
+    playTone("tap");
+    render();
+    return;
+  }
+
   state.wrongs = findWrongCells(false);
   const wrongCount = state.wrongs.size;
   const conflictCount = state.conflicts.size;
@@ -43,7 +51,7 @@ function submitRace() {
     showResult("交卷成功", `全部正确，用时 ${formatSeconds(getElapsedSeconds())}。`);
   } else {
     playTone("bad");
-    showResult("交卷完成", `有 ${wrongs.size} 个空格或错误格子。可以关闭结果后查看标红的位置。`);
+    showResult("交卷完成", `用时 ${formatSeconds(getElapsedSeconds())}，有 ${wrongs.size} 个空格或错误格子。可以关闭结果后查看标红的位置。`);
   }
 }
 
