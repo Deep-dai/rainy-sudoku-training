@@ -26,10 +26,15 @@ function handleTimeUp() {
   render();
   setMessage("时间到，已经自动交卷。", "alert");
   playTone("bad");
-  showResult("时间到", `倒计时结束，有 ${state.wrongs.size} 个空格或错误格子。`);
+  showResult("时间到", `倒计时结束，用时 ${formatSeconds(getElapsedSeconds())}，有 ${state.wrongs.size} 个空格或错误格子。`);
 }
 
 function updateTimerLabel() {
+  if (!state.timerVisible) {
+    els.timerLabel.textContent = "计时隐藏";
+    return;
+  }
+
   const seconds = state.mode === "race" ? getRemainingSeconds() : getElapsedSeconds();
   els.timerLabel.textContent = formatSeconds(seconds);
 }
@@ -43,6 +48,8 @@ function updateStatus() {
 function updateCoachText() {
   if (state.mode === "race") {
     els.coachText.textContent = "比赛模式会隐藏提示和即时检查，交卷或时间到后再统一判错。";
+  } else if (!state.errorHints) {
+    els.coachText.textContent = "错误提示已关闭，填完后先自己复盘；需要时可以再打开提示。";
   } else {
     els.coachText.textContent = "练习时可以用草稿、提示和检查，先追求看清逻辑，再慢慢提速。";
   }
@@ -82,7 +89,7 @@ function handleKeyboard(event) {
     ArrowUp: [Math.max(0, row - 1), col],
     ArrowDown: [Math.min(state.size - 1, row + 1), col],
     ArrowLeft: [row, Math.max(0, col - 1)],
-    ArrowRight: [row, Math.min(state.size - 1, col + 1)],
+    ArrowRight: [row, Math.min(state.size - 1), col + 1],
   }[key];
 
   selectCell(next[0] * state.size + next[1]);
@@ -196,11 +203,27 @@ function applySettingsToControls() {
   els.settingButtons.forEach((button) => {
     const setting = button.dataset.setting;
     const rawValue = button.dataset.value;
-    const value = setting === "size" ? Number(rawValue) : rawValue;
-    button.classList.toggle("is-active", settings[setting] === value);
+    const value = coerceSettingValue(setting, rawValue);
+    button.classList.toggle("is-active", Object.is(settings[setting], value));
   });
 
   els.durationInput.value = settings.durationMinutes;
+}
+
+function coerceSettingValue(setting, rawValue) {
+  if (setting === "size") {
+    return Number(rawValue);
+  }
+
+  if (setting === "timerVisible") {
+    return rawValue === "on";
+  }
+
+  if (setting === "errorHints") {
+    return rawValue === "on";
+  }
+
+  return rawValue;
 }
 
 function readSettings() {
@@ -208,9 +231,11 @@ function readSettings() {
     const parsed = JSON.parse(window.localStorage.getItem("rainy-sudoku-settings") ?? "{}");
     return {
       size: [6, 9].includes(parsed.size) ? parsed.size : undefined,
-      difficulty: ["easy", "next"].includes(parsed.difficulty) ? parsed.difficulty : undefined,
+      difficulty: normalizeDifficulty(parsed.difficulty, parsed.settingsVersion),
       mode: ["practice", "race"].includes(parsed.mode) ? parsed.mode : undefined,
       durationMinutes: parsed.durationMinutes ? clampMinutes(parsed.durationMinutes) : undefined,
+      timerVisible: typeof parsed.timerVisible === "boolean" ? parsed.timerVisible : undefined,
+      errorHints: typeof parsed.errorHints === "boolean" ? parsed.errorHints : undefined,
     };
   } catch {
     return {};
@@ -218,7 +243,10 @@ function readSettings() {
 }
 
 function saveSettings() {
-  window.localStorage.setItem("rainy-sudoku-settings", JSON.stringify(settings));
+  window.localStorage.setItem("rainy-sudoku-settings", JSON.stringify({
+    ...settings,
+    settingsVersion: SETTINGS_VERSION,
+  }));
 }
 
 function registerServiceWorker() {
