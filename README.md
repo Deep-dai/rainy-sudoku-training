@@ -34,16 +34,10 @@ http://127.0.0.1:4173/index.html
 
 项目已包含 `.github/workflows/pages.yml`。推送到 GitHub 的 `main` 分支后，GitHub Actions 会自动发布静态站点。
 
-发布完成后的地址通常是：
+本仓库发布完成后的地址是：
 
 ```text
-https://<GitHub用户名>.github.io/<仓库名>/
-```
-
-例如仓库是 `daibing/rainy-sudoku-training`，地址通常是：
-
-```text
-https://daibing.github.io/rainy-sudoku-training/
+https://deep-dai.github.io/rainy-sudoku-training/
 ```
 
 第一次发布通常需要等 1-3 分钟。进入仓库的 `Actions` 页面可以查看部署进度。
@@ -83,5 +77,5 @@ http://192.168.1.23:4173/index.html
 - 错题本和错题重练。
 - 每日训练计划。
 - 记录每种题型的完成时间和正确率。
-- 更细的难度分层。
+- 更细的阶段化教学引导。
 - 比赛模拟套题，例如连续做 3 道题并统计总时间。
