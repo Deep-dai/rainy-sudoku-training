@@ -2,28 +2,37 @@ const SIZE_CONFIG = {
   6: {
     boxRows: 2,
     boxCols: 3,
-    clues: {
-      easy: 24,
-      next: 18,
+    blanks: {
+      super: { min: 6, max: 8, allowHiddenSingles: false },
+      very: { min: 9, max: 11, allowHiddenSingles: false },
+      easy: { min: 12, max: 14, allowHiddenSingles: false },
+      expert: { min: 16, max: 20, allowHiddenSingles: true },
     },
     defaultMinutes: 8,
   },
   9: {
     boxRows: 3,
     boxCols: 3,
-    clues: {
-      easy: 54,
-      next: 42,
+    blanks: {
+      super: { min: 18, max: 25, allowHiddenSingles: false, openingSingles: 5 },
+      very: { min: 25, max: 30, allowHiddenSingles: false },
+      easy: { min: 30, max: 35, allowHiddenSingles: false },
+      expert: { min: 38, max: 44, allowHiddenSingles: true },
     },
     defaultMinutes: 12,
   },
 };
 
+const SETTINGS_VERSION = 3;
+const DIFFICULTY_KEYS = ["super", "very", "easy", "expert"];
+
 const COPY = {
   practice: "练习模式",
   race: "比赛模式",
-  easy: "基础",
-  next: "进阶",
+  super: "超级简单",
+  very: "非常简单",
+  easy: "简单",
+  expert: "高手难度",
 };
 
 const els = {
@@ -55,18 +64,22 @@ const savedSettings = readSettings();
 
 const settings = {
   size: savedSettings.size ?? 6,
-  difficulty: savedSettings.difficulty ?? "easy",
+  difficulty: savedSettings.difficulty ?? "super",
   mode: savedSettings.mode ?? "practice",
   durationMinutes: savedSettings.durationMinutes ?? 10,
+  timerVisible: savedSettings.timerVisible ?? true,
+  errorHints: savedSettings.errorHints ?? true,
 };
 
 const state = {
   size: 6,
   boxRows: 2,
   boxCols: 3,
-  difficulty: "easy",
+  difficulty: "super",
   mode: "practice",
   durationSeconds: 600,
+  timerVisible: true,
+  errorHints: true,
   solution: [],
   puzzle: [],
   entries: [],
@@ -91,13 +104,29 @@ function readSettings() {
     const parsed = JSON.parse(window.localStorage.getItem("rainy-sudoku-settings") ?? "{}");
     return {
       size: [6, 9].includes(parsed.size) ? parsed.size : undefined,
-      difficulty: ["easy", "next"].includes(parsed.difficulty) ? parsed.difficulty : undefined,
+      difficulty: normalizeDifficulty(parsed.difficulty, parsed.settingsVersion),
       mode: ["practice", "race"].includes(parsed.mode) ? parsed.mode : undefined,
       durationMinutes: parsed.durationMinutes ? clampMinutes(parsed.durationMinutes) : undefined,
+      timerVisible: typeof parsed.timerVisible === "boolean" ? parsed.timerVisible : undefined,
+      errorHints: typeof parsed.errorHints === "boolean" ? parsed.errorHints : undefined,
     };
   } catch {
     return {};
   }
+}
+
+function normalizeDifficulty(value, version) {
+  if (version !== SETTINGS_VERSION) {
+    if (value === "next") {
+      return "expert";
+    }
+
+    if (value === "easy") {
+      return "super";
+    }
+  }
+
+  return DIFFICULTY_KEYS.includes(value) ? value : undefined;
 }
 
 function clampMinutes(value) {
