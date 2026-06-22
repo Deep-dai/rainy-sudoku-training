@@ -17,26 +17,13 @@ function bindEvents() {
         els.durationInput.value = settings.durationMinutes;
       }
 
-      if (setting === "timerVisible" || setting === "errorHints") {
+      if (setting === "timerVisible") {
         state.timerVisible = settings.timerVisible;
-        state.errorHints = settings.errorHints;
-        if (!state.errorHints) {
-          state.wrongs = new Set();
-        } else if (state.mode === "practice") {
-          updateBoardWarnings();
-        }
         applySettingsToControls();
         render();
         updateStatus();
-        if (setting === "errorHints") {
-          updateCoachText();
-        }
         saveSettings();
-        if (setting === "timerVisible") {
-          setMessage(settings.timerVisible ? "计时器会实时显示。" : "计时器已关闭显示，完成时仍会告诉你用时。", "good");
-        } else {
-          setMessage(settings.errorHints ? "错误提示已开启。" : "错误提示已关闭，填错时不会标红。", "good");
-        }
+        setMessage(settings.timerVisible ? "计时器会实时显示。" : "计时器已关闭显示，完成时仍会告诉你用时。", "good");
         return;
       }
 
@@ -65,7 +52,6 @@ function bindEvents() {
   els.noteButton.addEventListener("click", toggleNoteMode);
   els.eraseButton.addEventListener("click", eraseSelected);
   els.hintButton.addEventListener("click", showHint);
-  els.checkButton.addEventListener("click", checkPracticeBoard);
   els.submitButton.addEventListener("click", submitRace);
   els.soundButton.addEventListener("click", toggleSound);
   els.closeResultButton.addEventListener("click", () => els.resultDialog.close());
@@ -92,11 +78,8 @@ function startNewGame() {
   state.mode = settings.mode;
   state.durationSeconds = clampMinutes(settings.durationMinutes) * 60;
   state.timerVisible = settings.timerVisible;
-  state.errorHints = settings.errorHints;
   state.selected = null;
   state.noteMode = false;
-  state.conflicts = new Set();
-  state.deadEnds = new Set();
   state.wrongs = new Set();
   state.hints = new Set();
   state.locked = false;
