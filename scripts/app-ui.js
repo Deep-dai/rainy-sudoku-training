@@ -16,6 +16,7 @@ function renderShellState() {
   els.board.dataset.size = String(state.size);
   els.numberPad.style.setProperty("--pad-cols", 3);
   els.modeLabel.textContent = COPY[state.mode];
+  els.submitLabel.textContent = state.mode === "race" ? "交卷" : "交作业";
 }
 
 function renderBoard() {
@@ -69,7 +70,7 @@ function createCell(index, row, col, display, selectedValue, related) {
   cell.classList.toggle("is-selected", index === state.selected);
   cell.classList.toggle("is-related", related.has(index));
   cell.classList.toggle("is-same-number", Boolean(value && selectedValue && value === selectedValue));
-  cell.classList.toggle("is-wrong", state.mode === "race" && state.wrongs.has(index));
+  cell.classList.toggle("is-wrong", state.wrongs.has(index));
   cell.classList.toggle("is-hint", state.hints.has(index));
   cell.classList.toggle("is-locked", state.locked);
 
@@ -253,7 +254,6 @@ function enterNumber(number) {
     setMessage("已填入数字。", "good");
     playTone("tap");
 
-    maybeFinishPractice();
     state.numberPadOpen = false;
   }
 
