@@ -9,7 +9,6 @@ function renderShellState() {
   els.app.classList.toggle("is-race", state.mode === "race");
   els.app.classList.toggle("is-finished", state.locked);
   els.app.classList.toggle("is-timer-hidden", !state.timerVisible);
-  els.app.classList.toggle("is-error-hints-off", !state.errorHints);
   els.board.style.setProperty("--size", state.size);
   els.board.style.setProperty("--box-rows", state.boxRows);
   els.board.style.setProperty("--box-cols", state.boxCols);
@@ -53,7 +52,6 @@ function createCell(index, row, col, display, selectedValue, related) {
   const value = display[index];
   const isGiven = getPuzzleValue(index) !== 0;
   const isEntry = Boolean(value && !isGiven);
-  const showPracticeErrors = state.mode === "practice" && state.errorHints;
   const cell = document.createElement("button");
   cell.type = "button";
   cell.className = "cell";
@@ -71,9 +69,7 @@ function createCell(index, row, col, display, selectedValue, related) {
   cell.classList.toggle("is-selected", index === state.selected);
   cell.classList.toggle("is-related", related.has(index));
   cell.classList.toggle("is-same-number", Boolean(value && selectedValue && value === selectedValue));
-  cell.classList.toggle("is-conflict", showPracticeErrors && state.conflicts.has(index));
-  cell.classList.toggle("is-dead-end", showPracticeErrors && state.deadEnds.has(index));
-  cell.classList.toggle("is-wrong", (showPracticeErrors || state.mode === "race") && state.wrongs.has(index));
+  cell.classList.toggle("is-wrong", state.mode === "race" && state.wrongs.has(index));
   cell.classList.toggle("is-hint", state.hints.has(index));
   cell.classList.toggle("is-locked", state.locked);
 
@@ -210,12 +206,6 @@ function selectCell(index) {
   if (fixed) {
     hideNumberPad();
     setMessage(`第 ${row} 行第 ${col} 列是题目给出的数字。`);
-  } else if (state.mode === "practice" && state.errorHints && state.conflicts.has(index)) {
-    showNumberPad(index);
-    setMessage(formatConflictMessage(index), "alert");
-  } else if (state.mode === "practice" && state.errorHints && state.deadEnds.has(index)) {
-    showNumberPad(index);
-    setMessage(`第 ${row} 行第 ${col} 列当前没有可填数字，先检查附近标红的数字。`, "alert");
   } else {
     showNumberPad(index);
     setMessage(`已选择第 ${row} 行第 ${col} 列。`);
@@ -260,19 +250,8 @@ function enterNumber(number) {
     state.notes[state.selected].clear();
     state.wrongs.delete(state.selected);
     state.hints = new Set();
-    updateBoardWarnings();
-
-    if (state.mode === "practice" && state.errorHints && state.conflicts.has(state.selected)) {
-      setMessage(formatConflictMessage(state.selected), "alert");
-      els.coachText.textContent = formatConflictCoachText(state.selected);
-      playTone("bad");
-    } else if (state.mode === "practice" && state.errorHints && state.deadEnds.size) {
-      setMessage("当前局面已经有空格无数可填，检查刚刚填过的数字。", "alert");
-      playTone("bad");
-    } else {
-      setMessage("已填入数字。", "good");
-      playTone("tap");
-    }
+    setMessage("已填入数字。", "good");
+    playTone("tap");
 
     maybeFinishPractice();
     state.numberPadOpen = false;
@@ -303,12 +282,7 @@ function eraseSelected() {
   state.wrongs.delete(state.selected);
   state.hints = new Set();
   state.numberPadOpen = false;
-  updateBoardWarnings();
-  if (state.mode === "practice" && state.errorHints && state.deadEnds.size) {
-    setMessage("已经擦除，但当前还有空格无数可填。", "alert");
-  } else {
-    setMessage("已经擦除。");
-  }
+  setMessage("已经擦除。");
   playTone("tap");
   render();
 }
@@ -344,14 +318,6 @@ function showHint() {
   state.selected = hint.index;
   state.hints.add(hint.index);
   state.numberPadOpen = true;
-
-  if (hint.candidates.length === 0) {
-    els.coachText.textContent = `第 ${hint.row + 1} 行第 ${hint.col + 1} 列已经没有可填数字，先回头检查前面填过的格子。`;
-    setMessage("小教练发现当前局面走不通。", "alert");
-    playTone("bad");
-    render();
-    return;
-  }
 
   if (hint.candidates.length === 1) {
     els.coachText.textContent = `看看第 ${hint.row + 1} 行第 ${hint.col + 1} 列，它只剩下一个可能的数字。`;
