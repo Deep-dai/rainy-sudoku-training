@@ -47,11 +47,9 @@ function updateStatus() {
 
 function updateCoachText() {
   if (state.mode === "race") {
-    els.coachText.textContent = "比赛模式会隐藏提示和即时检查，交卷或时间到后再统一判错。";
-  } else if (!state.errorHints) {
-    els.coachText.textContent = "错误提示已关闭，填完后先自己复盘；需要时可以再打开提示。";
+    els.coachText.textContent = "比赛模式会隐藏主动提示，交卷或时间到后再统一显示结果。";
   } else {
-    els.coachText.textContent = "练习时可以用草稿、提示和检查，先追求看清逻辑，再慢慢提速。";
+    els.coachText.textContent = "先自己观察行、列和宫，填完后再认真复盘。";
   }
 }
 
@@ -219,10 +217,6 @@ function coerceSettingValue(setting, rawValue) {
     return rawValue === "on";
   }
 
-  if (setting === "errorHints") {
-    return rawValue === "on";
-  }
-
   return rawValue;
 }
 
@@ -235,7 +229,6 @@ function readSettings() {
       mode: ["practice", "race"].includes(parsed.mode) ? parsed.mode : undefined,
       durationMinutes: parsed.durationMinutes ? clampMinutes(parsed.durationMinutes) : undefined,
       timerVisible: typeof parsed.timerVisible === "boolean" ? parsed.timerVisible : undefined,
-      errorHints: typeof parsed.errorHints === "boolean" ? parsed.errorHints : undefined,
     };
   } catch {
     return {};
