@@ -52,7 +52,7 @@ function bindEvents() {
   els.noteButton.addEventListener("click", toggleNoteMode);
   els.eraseButton.addEventListener("click", eraseSelected);
   els.hintButton.addEventListener("click", showHint);
-  els.submitButton.addEventListener("click", submitRace);
+  els.submitButton.addEventListener("click", submitBoard);
   els.soundButton.addEventListener("click", toggleSound);
   els.closeResultButton.addEventListener("click", () => els.resultDialog.close());
   els.resultNewButton.addEventListener("click", () => {
