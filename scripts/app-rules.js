@@ -1,3 +1,40 @@
+function submitBoard() {
+  if (state.mode === "race") {
+    submitRace();
+    return;
+  }
+
+  submitPractice();
+}
+
+function submitPractice() {
+  if (state.locked || state.mode !== "practice") {
+    return;
+  }
+
+  const wrongs = findWrongCells(true);
+  state.wrongs = wrongs;
+  state.hints = new Set();
+  hideNumberPad();
+
+  if (wrongs.size > 0) {
+    state.selected = wrongs.values().next().value;
+    setMessage(`还有 ${wrongs.size} 个格子需要再看看，修改后再交一次作业。`, "alert");
+    els.coachText.textContent = "红色格子里有未填写或需要重新思考的地方，改好后再交作业。";
+    playTone("bad");
+    render();
+    return;
+  }
+
+  state.locked = true;
+  stopTimer();
+  setMessage("全部正确，完成啦！", "good");
+  els.coachText.textContent = "这次是自己检查并完成的，做得很好。";
+  playTone("good");
+  render();
+  showResult("太棒了！", `全部正确，用时 ${formatSeconds(getElapsedSeconds())}。`);
+}
+
 function submitRace() {
   if (state.locked || state.mode !== "race") {
     return;
@@ -15,27 +52,6 @@ function submitRace() {
   } else {
     playTone("bad");
     showResult("交卷完成", `用时 ${formatSeconds(getElapsedSeconds())}，有 ${wrongs.size} 个空格或错误格子。可以关闭结果后查看标红的位置。`);
-  }
-}
-
-function maybeFinishPractice() {
-  if (state.mode !== "practice") {
-    return;
-  }
-
-  const display = getDisplayValues();
-  const filled = display.filter(Boolean).length;
-  if (filled < state.size * state.size) {
-    return;
-  }
-
-  const wrongs = findWrongCells(true);
-  if (wrongs.size === 0) {
-    state.locked = true;
-    stopTimer();
-    setMessage("完成了，全都正确。", "good");
-    playTone("good");
-    showResult("完成", `全部正确，用时 ${formatSeconds(getElapsedSeconds())}。`);
   }
 }
 
