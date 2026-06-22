@@ -141,7 +141,7 @@ svg circle {
 
 .control-band {
   display: grid;
-  grid-template-columns: auto minmax(330px, 1fr) auto auto auto auto auto;
+  grid-template-columns: auto minmax(330px, 1fr) auto auto auto auto;
   align-items: end;
   gap: 12px;
   padding: 12px;
@@ -184,8 +184,7 @@ svg circle {
   padding-left: 10px;
 }
 
-.timer-display-group .segmented,
-.hint-display-group .segmented {
+.timer-display-group .segmented {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -317,11 +316,6 @@ svg circle {
 .message-line.is-good {
   color: #0f695f;
   background: var(--green-soft);
-}
-
-.app-shell.is-error-hints-off .message-line:not(.is-alert):not(.is-good) {
-  background: #eef4ff;
-  color: #43536c;
 }
 
 .board-wrap {
@@ -531,18 +525,10 @@ svg circle {
   border-color: rgba(58, 183, 166, 0.85);
 }
 
-.cell.is-conflict,
 .cell.is-wrong {
   color: #a73320;
   background: #ffd7d0;
   border-color: #ff816f;
-}
-
-.cell.is-dead-end {
-  background: #ffd7d0;
-  box-shadow:
-    inset 0 0 0 4px #ff9a87,
-    0 4px 0 rgba(166, 81, 184, 0.28);
 }
 
 .cell.is-hint {
@@ -708,6 +694,10 @@ svg circle {
 }
 
 .race-only {
+  grid-column: span 2;
+}
+
+#hintButton {
   grid-column: span 2;
 }
 
