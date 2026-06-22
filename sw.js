@@ -1,13 +1,13 @@
-const CACHE_NAME = "rainy-sudoku-v7";
+const CACHE_NAME = "rainy-sudoku-v8";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=7",
-  "./scripts/app-state.js?v=7",
-  "./scripts/app-game.js?v=7",
-  "./scripts/app-ui.js?v=7",
-  "./scripts/app-rules.js?v=7",
-  "./scripts/app-utils.js?v=7",
+  "./styles.css?v=8",
+  "./scripts/app-state.js?v=8",
+  "./scripts/app-game.js?v=8",
+  "./scripts/app-ui.js?v=8",
+  "./scripts/app-rules.js?v=8",
+  "./scripts/app-utils.js?v=8",
   "./manifest.webmanifest",
   "./app-icon.svg"
 ];
