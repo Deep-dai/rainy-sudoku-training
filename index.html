@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./app-icon.svg">
-    <link rel="stylesheet" href="./styles.css?v=7">
+    <link rel="stylesheet" href="./styles.css?v=8">
   </head>
   <body>
     <main class="app-shell">
@@ -83,14 +83,6 @@
           </div>
         </div>
 
-        <div class="control-group hint-display-group">
-          <span class="control-label">错误提示</span>
-          <div class="segmented" role="group" aria-label="切换错误提示">
-            <button type="button" class="segment is-active" data-setting="errorHints" data-value="on">开</button>
-            <button type="button" class="segment" data-setting="errorHints" data-value="off">关</button>
-          </div>
-        </div>
-
         <button class="primary-button" id="newGameButton" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M5 12a7 7 0 0 1 12-5"></path>
@@ -153,12 +145,6 @@
               </svg>
               提示
             </button>
-            <button class="tool-button practice-only" id="checkButton" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M20 6 9 17l-5-5"></path>
-              </svg>
-              检查
-            </button>
             <button class="tool-button race-only" id="submitButton" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 4h16v16H4Z"></path>
@@ -171,7 +157,7 @@
 
           <div class="coach-box" id="coachBox">
             <h2>小教练</h2>
-            <p id="coachText">练习模式会提醒冲突；比赛模式会等交卷后统一判错。</p>
+            <p id="coachText">先自己观察行、列和宫，填完后再认真复盘。</p>
           </div>
         </aside>
       </section>
@@ -190,10 +176,10 @@
       </div>
     </dialog>
 
-    <script src="./scripts/app-state.js?v=7" defer></script>
-    <script src="./scripts/app-game.js?v=7" defer></script>
-    <script src="./scripts/app-ui.js?v=7" defer></script>
-    <script src="./scripts/app-rules.js?v=7" defer></script>
-    <script src="./scripts/app-utils.js?v=7" defer></script>
+    <script src="./scripts/app-state.js?v=8" defer></script>
+    <script src="./scripts/app-game.js?v=8" defer></script>
+    <script src="./scripts/app-ui.js?v=8" defer></script>
+    <script src="./scripts/app-rules.js?v=8" defer></script>
+    <script src="./scripts/app-utils.js?v=8" defer></script>
   </body>
 </html>
