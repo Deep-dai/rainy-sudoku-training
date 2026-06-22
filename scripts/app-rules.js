@@ -1,40 +1,3 @@
-function checkPracticeBoard() {
-  if (state.locked || state.mode !== "practice") {
-    return;
-  }
-
-  updateBoardWarnings();
-  if (!state.errorHints) {
-    state.wrongs = new Set();
-    setMessage("错误提示已关闭，系统不会标红，继续自己检查。", "good");
-    playTone("tap");
-    render();
-    return;
-  }
-
-  state.wrongs = findWrongCells(false);
-  const wrongCount = state.wrongs.size;
-  const conflictCount = state.conflicts.size;
-  const deadEndCount = state.deadEnds.size;
-
-  if (!wrongCount && !conflictCount && !deadEndCount) {
-    setMessage("目前填过的数字都对。", "good");
-    playTone("good");
-  } else if (state.selected !== null && state.conflicts.has(state.selected)) {
-    setMessage(formatConflictMessage(state.selected), "alert");
-    els.coachText.textContent = formatConflictCoachText(state.selected);
-    playTone("bad");
-  } else if (deadEndCount) {
-    setMessage(`发现 ${deadEndCount} 个空格已经无数可填，先检查标红位置附近。`, "alert");
-    playTone("bad");
-  } else {
-    setMessage(`发现 ${wrongCount || conflictCount} 个需要再看看的格子。`, "alert");
-    playTone("bad");
-  }
-
-  render();
-}
-
 function submitRace() {
   if (state.locked || state.mode !== "race") {
     return;
@@ -67,7 +30,7 @@ function maybeFinishPractice() {
   }
 
   const wrongs = findWrongCells(true);
-  if (wrongs.size === 0 && state.conflicts.size === 0 && state.deadEnds.size === 0) {
+  if (wrongs.size === 0) {
     state.locked = true;
     stopTimer();
     setMessage("完成了，全都正确。", "good");
@@ -78,6 +41,17 @@ function maybeFinishPractice() {
 
 function findHint() {
   const display = getDisplayGrid();
+  const safeGrid = Array.from({ length: state.size }, (_, row) => {
+    return Array.from({ length: state.size }, (_, col) => {
+      const index = row * state.size + col;
+      const puzzleValue = getPuzzleValue(index);
+      if (puzzleValue) {
+        return puzzleValue;
+      }
+
+      return state.entries[index] === state.solution[row][col] ? state.entries[index] : 0;
+    });
+  });
   let best = null;
 
   for (let index = 0; index < state.size * state.size; index += 1) {
@@ -87,7 +61,11 @@ function findHint() {
       continue;
     }
 
-    const candidates = getCandidates(display, row, col);
+    const candidates = getCandidates(safeGrid, row, col);
+    if (candidates.length === 0) {
+      continue;
+    }
+
     if (!best || candidates.length < best.candidates.length) {
       best = { index, row, col, candidates };
     }
@@ -98,156 +76,6 @@ function findHint() {
   }
 
   return best;
-}
-
-function updateBoardWarnings() {
-  updateConflicts();
-  state.deadEnds = state.mode === "practice" ? findDeadEndCells() : new Set();
-}
-
-function updateConflicts() {
-  state.conflicts = findConflicts();
-}
-
-function findDeadEndCells() {
-  const deadEnds = new Set();
-  const grid = getDisplayGrid();
-
-  for (let row = 0; row < state.size; row += 1) {
-    for (let col = 0; col < state.size; col += 1) {
-      if (grid[row][col] !== 0) {
-        continue;
-      }
-
-      if (getCandidates(grid, row, col).length === 0) {
-        deadEnds.add(row * state.size + col);
-      }
-    }
-  }
-
-  return deadEnds;
-}
-
-function findConflicts() {
-  const conflicts = new Set();
-  const display = getDisplayValues();
-  const groups = [];
-
-  for (let row = 0; row < state.size; row += 1) {
-    groups.push([...Array(state.size).keys()].map((col) => row * state.size + col));
-  }
-
-  for (let col = 0; col < state.size; col += 1) {
-    groups.push([...Array(state.size).keys()].map((row) => row * state.size + col));
-  }
-
-  for (let boxRow = 0; boxRow < state.size; boxRow += state.boxRows) {
-    for (let boxCol = 0; boxCol < state.size; boxCol += state.boxCols) {
-      const group = [];
-      for (let row = boxRow; row < boxRow + state.boxRows; row += 1) {
-        for (let col = boxCol; col < boxCol + state.boxCols; col += 1) {
-          group.push(row * state.size + col);
-        }
-      }
-      groups.push(group);
-    }
-  }
-
-  groups.forEach((group) => {
-    const seen = new Map();
-    group.forEach((index) => {
-      const value = display[index];
-      if (!value) {
-        return;
-      }
-
-      if (!seen.has(value)) {
-        seen.set(value, []);
-      }
-      seen.get(value).push(index);
-    });
-
-    seen.forEach((indexes) => {
-      if (indexes.length > 1) {
-        indexes.forEach((index) => conflicts.add(index));
-      }
-    });
-  });
-
-  return conflicts;
-}
-
-function getConflictDetails(index) {
-  const display = getDisplayValues();
-  const value = display[index];
-  if (!value) {
-    return [];
-  }
-
-  const row = Math.floor(index / state.size);
-  const col = index % state.size;
-  const boxStartRow = Math.floor(row / state.boxRows) * state.boxRows;
-  const boxStartCol = Math.floor(col / state.boxCols) * state.boxCols;
-  const units = [
-    {
-      label: "同一行",
-      indexes: [...Array(state.size).keys()].map((c) => row * state.size + c),
-    },
-    {
-      label: "同一列",
-      indexes: [...Array(state.size).keys()].map((r) => r * state.size + col),
-    },
-    {
-      label: "同一宫",
-      indexes: Array.from({ length: state.boxRows }, (_, r) => {
-        return Array.from({ length: state.boxCols }, (_, c) => {
-          return (boxStartRow + r) * state.size + boxStartCol + c;
-        });
-      }).flat(),
-    },
-  ];
-
-  return units
-    .map((unit) => {
-      const peers = unit.indexes.filter((peerIndex) => peerIndex !== index && display[peerIndex] === value);
-      return { label: unit.label, peers };
-    })
-    .filter((unit) => unit.peers.length);
-}
-
-function formatConflictMessage(index) {
-  const value = getDisplayValues()[index];
-  const details = getConflictDetails(index);
-  if (!details.length) {
-    return "这里和同一行、列或宫里的数字冲突了。";
-  }
-
-  const firstDetail = details[0];
-  const firstPeer = firstDetail.peers[0];
-  const extraCount = details.reduce((sum, detail) => sum + detail.peers.length, 0) - 1;
-  const extraText = extraCount > 0 ? `，还有 ${extraCount} 个冲突位置` : "";
-  return `数字 ${value} 和${firstDetail.label}里的${formatCellPosition(firstPeer)}冲突${extraText}。`;
-}
-
-function formatConflictCoachText(index) {
-  const details = getConflictDetails(index);
-  if (!details.length) {
-    return "先看粗线围起来的宫，再看这一行和这一列是否已有相同数字。";
-  }
-
-  const detail = details[0];
-  const peer = detail.peers[0];
-  if (detail.label === "同一宫") {
-    return `${formatCellPosition(index)} 和 ${formatCellPosition(peer)} 在同一个粗线宫里，宫内不能重复。`;
-  }
-
-  return `${formatCellPosition(index)} 和 ${formatCellPosition(peer)} 在${detail.label}里，不能填相同数字。`;
-}
-
-function formatCellPosition(index) {
-  const row = Math.floor(index / state.size) + 1;
-  const col = (index % state.size) + 1;
-  return `第 ${row} 行第 ${col} 列`;
 }
 
 function findWrongCells(includeEmpty) {
