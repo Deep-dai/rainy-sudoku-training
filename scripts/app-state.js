@@ -49,6 +49,7 @@ const els = {
   eraseButton: document.querySelector("#eraseButton"),
   hintButton: document.querySelector("#hintButton"),
   submitButton: document.querySelector("#submitButton"),
+  submitLabel: document.querySelector("#submitLabel"),
   coachText: document.querySelector("#coachText"),
   soundButton: document.querySelector("#soundButton"),
   resultDialog: document.querySelector("#resultDialog"),
