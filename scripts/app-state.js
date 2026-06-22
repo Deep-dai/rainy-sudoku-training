@@ -48,7 +48,6 @@ const els = {
   noteButton: document.querySelector("#noteButton"),
   eraseButton: document.querySelector("#eraseButton"),
   hintButton: document.querySelector("#hintButton"),
-  checkButton: document.querySelector("#checkButton"),
   submitButton: document.querySelector("#submitButton"),
   coachText: document.querySelector("#coachText"),
   soundButton: document.querySelector("#soundButton"),
@@ -68,7 +67,6 @@ const settings = {
   mode: savedSettings.mode ?? "practice",
   durationMinutes: savedSettings.durationMinutes ?? 10,
   timerVisible: savedSettings.timerVisible ?? true,
-  errorHints: savedSettings.errorHints ?? true,
 };
 
 const state = {
@@ -79,15 +77,12 @@ const state = {
   mode: "practice",
   durationSeconds: 600,
   timerVisible: true,
-  errorHints: true,
   solution: [],
   puzzle: [],
   entries: [],
   notes: [],
   selected: null,
   noteMode: false,
-  conflicts: new Set(),
-  deadEnds: new Set(),
   wrongs: new Set(),
   hints: new Set(),
   locked: false,
@@ -108,7 +103,6 @@ function readSettings() {
       mode: ["practice", "race"].includes(parsed.mode) ? parsed.mode : undefined,
       durationMinutes: parsed.durationMinutes ? clampMinutes(parsed.durationMinutes) : undefined,
       timerVisible: typeof parsed.timerVisible === "boolean" ? parsed.timerVisible : undefined,
-      errorHints: typeof parsed.errorHints === "boolean" ? parsed.errorHints : undefined,
     };
   } catch {
     return {};
