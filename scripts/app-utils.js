@@ -198,10 +198,15 @@ function playTone(type) {
 }
 
 function applySettingsToControls() {
+  const availableDifficulties = new Set(getAvailableDifficultyKeys(settings.size));
+
   els.settingButtons.forEach((button) => {
     const setting = button.dataset.setting;
     const rawValue = button.dataset.value;
     const value = coerceSettingValue(setting, rawValue);
+    const isAvailable = setting !== "difficulty" || availableDifficulties.has(rawValue);
+    button.hidden = !isAvailable;
+    button.disabled = !isAvailable;
     button.classList.toggle("is-active", Object.is(settings[setting], value));
   });
 
