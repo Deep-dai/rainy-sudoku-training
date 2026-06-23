@@ -15,6 +15,9 @@ function bindEvents() {
       if (setting === "size") {
         settings.durationMinutes = SIZE_CONFIG[settings.size].defaultMinutes;
         els.durationInput.value = settings.durationMinutes;
+        if (!getAvailableDifficultyKeys(settings.size).includes(settings.difficulty)) {
+          settings.difficulty = "super";
+        }
       }
 
       if (setting === "timerVisible") {
@@ -113,7 +116,7 @@ function startNewGame() {
 
 function createPuzzle(size, difficulty) {
   const difficultyConfig = getDifficultyConfig(size, difficulty);
-  const maxAttempts = size === 9 ? 32 : 12;
+  const maxAttempts = difficultyConfig.allowAdvancedLogic ? 48 : size === 9 ? 32 : 12;
   let best = null;
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
@@ -204,6 +207,10 @@ function countOpeningSingles(grid, size) {
 
 function matchesDifficulty(grid, size, difficulty) {
   const difficultyConfig = getDifficultyConfig(size, difficulty);
+
+  if (difficultyConfig.allowAdvancedLogic) {
+    return true;
+  }
 
   if (!difficultyConfig.allowHiddenSingles) {
     return canSolveWithBasicLogic(grid, size, false);
