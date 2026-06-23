@@ -16,15 +16,15 @@ const SIZE_CONFIG = {
     blanks: {
       super: { min: 18, max: 25, allowHiddenSingles: false, openingSingles: 5 },
       very: { min: 25, max: 30, allowHiddenSingles: false },
-      easy: { min: 30, max: 35, allowHiddenSingles: false },
       expert: { min: 38, max: 44, allowHiddenSingles: true },
+      master: { min: 45, max: 50, allowAdvancedLogic: true },
     },
     defaultMinutes: 12,
   },
 };
 
 const SETTINGS_VERSION = 3;
-const DIFFICULTY_KEYS = ["super", "very", "easy", "expert"];
+const DIFFICULTY_KEYS = ["super", "very", "easy", "expert", "master"];
 
 const COPY = {
   practice: "练习模式",
@@ -33,6 +33,7 @@ const COPY = {
   very: "非常简单",
   easy: "简单",
   expert: "高手难度",
+  master: "超级高手",
 };
 
 const els = {
@@ -69,6 +70,10 @@ const settings = {
   durationMinutes: savedSettings.durationMinutes ?? 10,
   timerVisible: savedSettings.timerVisible ?? true,
 };
+
+if (!getAvailableDifficultyKeys(settings.size).includes(settings.difficulty)) {
+  settings.difficulty = "super";
+}
 
 const state = {
   size: 6,
@@ -122,6 +127,10 @@ function normalizeDifficulty(value, version) {
   }
 
   return DIFFICULTY_KEYS.includes(value) ? value : undefined;
+}
+
+function getAvailableDifficultyKeys(size) {
+  return Object.keys(SIZE_CONFIG[size].blanks);
 }
 
 function clampMinutes(value) {
