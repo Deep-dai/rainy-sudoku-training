@@ -151,9 +151,15 @@ function setMessage(text, tone = "normal") {
   els.messageLine.classList.toggle("is-good", tone === "good");
 }
 
-function showResult(title, text) {
+function showResult(title, text, options = {}) {
   els.resultTitle.textContent = title;
   els.resultText.textContent = text;
+
+  if (options.reward) {
+    renderRewardReveal(options.reward);
+  } else {
+    hideRewardReveal();
+  }
 
   if (typeof els.resultDialog.showModal === "function") {
     els.resultDialog.showModal();
