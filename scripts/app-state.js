@@ -53,11 +53,26 @@ const els = {
   submitLabel: document.querySelector("#submitLabel"),
   coachText: document.querySelector("#coachText"),
   soundButton: document.querySelector("#soundButton"),
+  collectionButton: document.querySelector("#collectionButton"),
+  collectionCount: document.querySelector("#collectionCount"),
   resultDialog: document.querySelector("#resultDialog"),
   resultTitle: document.querySelector("#resultTitle"),
   resultText: document.querySelector("#resultText"),
+  rewardReveal: document.querySelector("#rewardReveal"),
+  rewardStickerArt: document.querySelector("#rewardStickerArt"),
+  rewardStickerSymbol: document.querySelector("#rewardStickerSymbol"),
+  rewardTierLabel: document.querySelector("#rewardTierLabel"),
+  rewardStickerName: document.querySelector("#rewardStickerName"),
+  rewardStickerStars: document.querySelector("#rewardStickerStars"),
+  rewardMessage: document.querySelector("#rewardMessage"),
+  independentBadge: document.querySelector("#independentBadge"),
   closeResultButton: document.querySelector("#closeResultButton"),
+  resultCollectionButton: document.querySelector("#resultCollectionButton"),
   resultNewButton: document.querySelector("#resultNewButton"),
+  collectionDialog: document.querySelector("#collectionDialog"),
+  collectionProgress: document.querySelector("#collectionProgress"),
+  collectionContent: document.querySelector("#collectionContent"),
+  closeCollectionButton: document.querySelector("#closeCollectionButton"),
   settingButtons: [...document.querySelectorAll("[data-setting]")],
 };
 
@@ -96,6 +111,9 @@ const state = {
   startedAt: 0,
   timerId: null,
   sound: true,
+  usedHint: false,
+  rewardGranted: false,
+  currentReward: null,
 };
 
 let audioContext = null;
