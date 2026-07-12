@@ -831,6 +831,30 @@ svg circle {
   overflow: hidden;
 }
 
+.reward-reveal[data-tier="4"] {
+  border-color: rgba(117, 122, 232, 0.42);
+  background: linear-gradient(135deg, #f3fffb, #f4edff 52%, #fff2f7);
+  box-shadow: inset 0 0 0 2px rgba(120, 218, 204, 0.18);
+}
+
+.reward-reveal[data-tier="5"] {
+  border: 3px solid #f0c24f;
+  background: linear-gradient(135deg, #fff7d8, #f0e7ff 35%, #ddfaf3 68%, #ffe9f3);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.82),
+    0 10px 30px rgba(116, 80, 160, 0.16);
+}
+
+.reward-reveal[data-tier="5"] .tier-badge {
+  color: #ffffff;
+  background: linear-gradient(135deg, #7c45af, #168f83 65%, #ca8b18);
+  box-shadow: 0 5px 12px rgba(80, 55, 122, 0.22);
+}
+
+.reward-reveal[data-tier="5"] .reward-copy h3 {
+  color: #51336f;
+}
+
 .reward-sticker-stage {
   position: relative;
   display: grid;
