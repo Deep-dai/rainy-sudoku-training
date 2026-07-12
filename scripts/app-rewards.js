@@ -163,6 +163,7 @@ function getUnlockedStickerCount() {
 function renderRewardReveal(reward) {
   const { sticker, tier, count, level, isNew, independent } = reward;
   els.rewardReveal.hidden = false;
+  els.rewardReveal.dataset.tier = String(tier);
   els.resultCollectionButton.hidden = false;
   els.resultDialog.classList.add("has-reward");
   applyStickerTheme(els.rewardStickerArt, sticker, level);
@@ -185,6 +186,7 @@ function hideRewardReveal() {
   els.rewardReveal.hidden = true;
   els.resultCollectionButton.hidden = true;
   els.resultDialog.classList.remove("has-reward");
+  els.rewardReveal.removeAttribute("data-tier");
   els.independentBadge.hidden = true;
 }
 
