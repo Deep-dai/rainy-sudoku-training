@@ -315,6 +315,7 @@ function showHint() {
     return;
   }
 
+  state.usedHint = true;
   state.selected = hint.index;
   state.hints.add(hint.index);
   state.numberPadOpen = true;
