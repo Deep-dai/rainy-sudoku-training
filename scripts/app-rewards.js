@@ -37,10 +37,10 @@ const STICKER_CATALOG = [
   { id: "blue-whale", tier: 4, name: "蓝宝石鲸", symbol: "🐋", colors: ["#72d5e8", "#8caef2"], ink: "#164e78" },
   { id: "jewel-peacock", tier: 4, name: "宝石孔雀", symbol: "🦚", colors: ["#6ed6b6", "#b18be8"], ink: "#245d54" },
   { id: "snow-leopard", tier: 4, name: "雪山豹", symbol: "🐆", colors: ["#d2d9e8", "#f7c5a4"], ink: "#455064" },
-  { id: "golden-lion", tier: 5, name: "金冠狮王", symbol: "🦁", colors: ["#ffd65a", "#ff8c75"], ink: "#6c3d00" },
-  { id: "aurora-deer", tier: 5, name: "极光鹿", symbol: "🦌", colors: ["#79dfc7", "#c49df2"], ink: "#255b5c" },
-  { id: "cosmic-whale", tier: 5, name: "星空鲸", symbol: "🐳", colors: ["#7ab8ef", "#e093df"], ink: "#334a81" },
-  { id: "rainbow-unicorn", tier: 5, name: "彩虹独角兽", symbol: "🦄", colors: ["#ffadd9", "#87ded3"], ink: "#70436f" },
+  { id: "golden-lion", tier: 5, name: "日曜虎王", symbol: "🐯", spritePosition: "0% 0%", colors: ["#ffd65a", "#ff8c75"], ink: "#6c3d00" },
+  { id: "aurora-deer", tier: 5, name: "星海鲸王", symbol: "🐋", spritePosition: "100% 0%", colors: ["#73d7ef", "#8b9ff3"], ink: "#174f7a" },
+  { id: "cosmic-whale", tier: 5, name: "极光孔雀", symbol: "🦚", spritePosition: "0% 100%", colors: ["#65d8ad", "#a67de8"], ink: "#205d53" },
+  { id: "rainbow-unicorn", tier: 5, name: "钻石雪豹", symbol: "🐆", spritePosition: "100% 100%", colors: ["#d1d8ea", "#f2acd8"], ink: "#3e4b68" },
 ];
 
 let rewardCollection = createEmptyRewardCollection();
@@ -166,7 +166,7 @@ function renderRewardReveal(reward) {
   els.resultCollectionButton.hidden = false;
   els.resultDialog.classList.add("has-reward");
   applyStickerTheme(els.rewardStickerArt, sticker, level);
-  els.rewardStickerSymbol.textContent = sticker.symbol;
+  renderStickerGraphic(els.rewardStickerSymbol, sticker);
   els.rewardTierLabel.textContent = `${REWARD_TIER_INFO[tier].shortName} · ${REWARD_TIER_INFO[tier].name}`;
   els.rewardStickerName.textContent = sticker.name;
   renderStars(els.rewardStickerStars, level);
@@ -208,6 +208,19 @@ function applyStickerTheme(element, sticker, level = 0) {
   element.style.setProperty("--sticker-ink", sticker.ink);
   element.dataset.tier = String(sticker.tier);
   element.dataset.level = String(level);
+  element.classList.toggle("has-sprite", Boolean(sticker.spritePosition));
+}
+
+function renderStickerGraphic(element, sticker) {
+  element.className = sticker.spritePosition ? "sticker-sprite" : "sticker-symbol";
+  element.textContent = sticker.spritePosition ? "" : sticker.symbol;
+  element.style.removeProperty("--sprite-position");
+  element.style.removeProperty("--sprite-image");
+
+  if (sticker.spritePosition) {
+    element.style.setProperty("--sprite-position", sticker.spritePosition);
+    element.style.setProperty("--sprite-image", "url('./assets/stickers/tier-5-legendary.svg')");
+  }
 }
 
 function openCollection() {
@@ -276,8 +289,12 @@ function createStickerCard(sticker) {
   applyStickerTheme(art, sticker, level);
 
   const symbol = document.createElement("span");
-  symbol.className = "sticker-symbol";
-  symbol.textContent = count ? sticker.symbol : "✦";
+  if (count) {
+    renderStickerGraphic(symbol, sticker);
+  } else {
+    symbol.className = "sticker-symbol";
+    symbol.textContent = "✦";
+  }
   symbol.setAttribute("aria-hidden", "true");
   art.append(symbol);
 
