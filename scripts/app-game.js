@@ -1,6 +1,7 @@
 function init() {
   applySettingsToControls();
   bindEvents();
+  initRewards();
   startNewGame();
   registerServiceWorker();
 }
@@ -87,6 +88,9 @@ function startNewGame() {
   state.hints = new Set();
   state.locked = false;
   state.numberPadOpen = false;
+  state.usedHint = false;
+  state.rewardGranted = false;
+  state.currentReward = null;
   hideNumberPad();
   state.startedAt = Date.now();
   state.solution = [];
