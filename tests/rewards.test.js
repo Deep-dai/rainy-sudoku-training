@@ -70,15 +70,31 @@ const mapping = JSON.parse(JSON.stringify(vm.runInContext(`({
 
 assert.deepEqual(mapping, {
   sixSuper: 1,
-  sixVery: 1,
-  sixEasy: 2,
-  sixExpert: 3,
-  nineSuper: 2,
-  nineVery: 3,
-  nineExpert: 4,
+  sixVery: 2,
+  sixEasy: 3,
+  sixExpert: 4,
+  nineSuper: 3,
+  nineVery: 4,
+  nineExpert: 5,
   nineMaster: 5,
   catalogSize: 20,
 });
+
+const illustratedStickers = JSON.parse(JSON.stringify(vm.runInContext(`STICKER_CATALOG
+  .filter((sticker) => sticker.tier >= 2)
+  .map(({ tier, name, spriteImage, spritePosition }) => ({ tier, name, spriteImage, spritePosition }))`, context)));
+assert.equal(illustratedStickers.length, 16);
+assert.equal(illustratedStickers.every((sticker) => sticker.spriteImage && sticker.spritePosition), true);
+assert.deepEqual([...new Set(illustratedStickers.map((sticker) => sticker.spriteImage))], [
+  "./assets/stickers/tier-2-cute.jpg",
+  "./assets/stickers/tier-3-magic.jpg",
+  "./assets/stickers/tier-4-plush.jpg",
+  "./assets/stickers/tier-5-legendary.svg",
+]);
+assert.deepEqual(
+  illustratedStickers.filter((sticker) => sticker.tier === 4).map((sticker) => sticker.name),
+  ["粉色兔兔", "灰色兔兔", "毛绒长颈鹿", "星光伊布"],
+);
 
 const levels = vm.runInContext(`[0, 1, 2, 3, 4, 9].map(getStickerLevel)`, context);
 assert.deepEqual([...levels], [0, 0, 1, 2, 3, 3]);

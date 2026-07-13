@@ -5,18 +5,18 @@ const REWARD_TIER_INFO = {
   1: { name: "小贴纸", shortName: "1级", description: "快乐的小小收藏" },
   2: { name: "可爱动物", shortName: "2级", description: "认识新的动物朋友" },
   3: { name: "闪亮动物", shortName: "3级", description: "会发光的动物伙伴" },
-  4: { name: "炫彩动物", shortName: "4级", description: "珍贵的炫彩收藏" },
+  4: { name: "珍藏毛绒", shortName: "4级", description: "闪闪发光的毛绒伙伴" },
   5: { name: "超级珍藏", shortName: "5级", description: "最特别的传奇朋友" },
 };
 
 const REWARD_DIFFICULTY_MAP = {
   "6:super": 1,
-  "6:very": 1,
-  "6:easy": 2,
-  "6:expert": 3,
-  "9:super": 2,
-  "9:very": 3,
-  "9:expert": 4,
+  "6:very": 2,
+  "6:easy": 3,
+  "6:expert": 4,
+  "9:super": 3,
+  "9:very": 4,
+  "9:expert": 5,
   "9:master": 5,
 };
 
@@ -25,22 +25,22 @@ const STICKER_CATALOG = [
   { id: "rainbow-bridge", tier: 1, name: "彩虹桥", symbol: "🌈", colors: ["#9de7dc", "#ffc4df"], ink: "#275b66" },
   { id: "berry-smile", tier: 1, name: "草莓甜心", symbol: "🍓", colors: ["#ffb4b0", "#fff0a8"], ink: "#7b2743" },
   { id: "rainy-umbrella", tier: 1, name: "Rainy 小雨伞", symbol: "☂️", colors: ["#b8c9f2", "#eed0f5"], ink: "#453a79" },
-  { id: "bounce-bunny", tier: 2, name: "蹦蹦兔", symbol: "🐰", colors: ["#ffd7e8", "#fff2b5"], ink: "#7a3e62" },
-  { id: "marmalade-cat", tier: 2, name: "橘子猫", symbol: "🐱", colors: ["#ffc594", "#ffe7ae"], ink: "#74431f" },
-  { id: "sunny-duck", tier: 2, name: "太阳小鸭", symbol: "🐥", colors: ["#fff07a", "#bdebd1"], ink: "#5a551f" },
-  { id: "ice-penguin", tier: 2, name: "冰川企鹅", symbol: "🐧", colors: ["#adddf4", "#d9d3f5"], ink: "#244b68" },
-  { id: "forest-fox", tier: 3, name: "森林狐狸", symbol: "🦊", colors: ["#ffad78", "#c9e7a5"], ink: "#6f321c" },
-  { id: "bamboo-panda", tier: 3, name: "竹林熊猫", symbol: "🐼", colors: ["#bfe0bd", "#f6d8e7"], ink: "#294f3b" },
-  { id: "ocean-dolphin", tier: 3, name: "浪花海豚", symbol: "🐬", colors: ["#8cddea", "#b9c8f4"], ink: "#1c5c75" },
-  { id: "night-owl", tier: 3, name: "月光猫头鹰", symbol: "🦉", colors: ["#c7b5ec", "#ffd68c"], ink: "#513f78" },
-  { id: "sun-tiger", tier: 4, name: "太阳虎", symbol: "🐯", colors: ["#ffab69", "#ffd65c"], ink: "#723913" },
-  { id: "blue-whale", tier: 4, name: "蓝宝石鲸", symbol: "🐋", colors: ["#72d5e8", "#8caef2"], ink: "#164e78" },
-  { id: "jewel-peacock", tier: 4, name: "宝石孔雀", symbol: "🦚", colors: ["#6ed6b6", "#b18be8"], ink: "#245d54" },
-  { id: "snow-leopard", tier: 4, name: "雪山豹", symbol: "🐆", colors: ["#d2d9e8", "#f7c5a4"], ink: "#455064" },
-  { id: "golden-lion", tier: 5, name: "日曜虎王", symbol: "🐯", spritePosition: "0% 0%", colors: ["#ffd65a", "#ff8c75"], ink: "#6c3d00" },
-  { id: "aurora-deer", tier: 5, name: "星海鲸王", symbol: "🐋", spritePosition: "100% 0%", colors: ["#73d7ef", "#8b9ff3"], ink: "#174f7a" },
-  { id: "cosmic-whale", tier: 5, name: "极光孔雀", symbol: "🦚", spritePosition: "0% 100%", colors: ["#65d8ad", "#a67de8"], ink: "#205d53" },
-  { id: "rainbow-unicorn", tier: 5, name: "钻石雪豹", symbol: "🐆", spritePosition: "100% 100%", colors: ["#d1d8ea", "#f2acd8"], ink: "#3e4b68" },
+  { id: "bounce-bunny", tier: 2, name: "蹦蹦兔", symbol: "🐰", spriteImage: "./assets/stickers/tier-2-cute.jpg", spritePosition: "0% 0%", colors: ["#ffd7e8", "#fff2b5"], ink: "#7a3e62" },
+  { id: "marmalade-cat", tier: 2, name: "橘子猫", symbol: "🐱", spriteImage: "./assets/stickers/tier-2-cute.jpg", spritePosition: "100% 0%", colors: ["#ffc594", "#ffe7ae"], ink: "#74431f" },
+  { id: "sunny-duck", tier: 2, name: "太阳小鸭", symbol: "🐥", spriteImage: "./assets/stickers/tier-2-cute.jpg", spritePosition: "0% 100%", colors: ["#fff07a", "#bdebd1"], ink: "#5a551f" },
+  { id: "ice-penguin", tier: 2, name: "冰川企鹅", symbol: "🐧", spriteImage: "./assets/stickers/tier-2-cute.jpg", spritePosition: "100% 100%", colors: ["#adddf4", "#d9d3f5"], ink: "#244b68" },
+  { id: "forest-fox", tier: 3, name: "森林狐狸", symbol: "🦊", spriteImage: "./assets/stickers/tier-3-magic.jpg", spritePosition: "0% 0%", colors: ["#ffad78", "#c9e7a5"], ink: "#6f321c" },
+  { id: "bamboo-panda", tier: 3, name: "竹林熊猫", symbol: "🐼", spriteImage: "./assets/stickers/tier-3-magic.jpg", spritePosition: "100% 0%", colors: ["#bfe0bd", "#f6d8e7"], ink: "#294f3b" },
+  { id: "ocean-dolphin", tier: 3, name: "浪花海豚", symbol: "🐬", spriteImage: "./assets/stickers/tier-3-magic.jpg", spritePosition: "0% 100%", colors: ["#8cddea", "#b9c8f4"], ink: "#1c5c75" },
+  { id: "night-owl", tier: 3, name: "月光猫头鹰", symbol: "🦉", spriteImage: "./assets/stickers/tier-3-magic.jpg", spritePosition: "100% 100%", colors: ["#c7b5ec", "#ffd68c"], ink: "#513f78" },
+  { id: "sun-tiger", tier: 4, name: "粉色兔兔", symbol: "🐰", spriteImage: "./assets/stickers/tier-4-plush.jpg", spritePosition: "0% 0%", colors: ["#f7b8ce", "#bce9e5"], ink: "#74435f" },
+  { id: "blue-whale", tier: 4, name: "灰色兔兔", symbol: "🐰", spriteImage: "./assets/stickers/tier-4-plush.jpg", spritePosition: "100% 0%", colors: ["#c8c1c6", "#cfc0ed"], ink: "#51485d" },
+  { id: "jewel-peacock", tier: 4, name: "毛绒长颈鹿", symbol: "🦒", spriteImage: "./assets/stickers/tier-4-plush.jpg", spritePosition: "0% 100%", colors: ["#f5c36f", "#f3aa94"], ink: "#71461f" },
+  { id: "snow-leopard", tier: 4, name: "星光伊布", symbol: "✦", spriteImage: "./assets/stickers/tier-4-plush.jpg", spritePosition: "100% 100%", colors: ["#c98e64", "#ffe0a8"], ink: "#5f3b2b" },
+  { id: "golden-lion", tier: 5, name: "日曜虎王", symbol: "🐯", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "0% 0%", colors: ["#ffd65a", "#ff8c75"], ink: "#6c3d00" },
+  { id: "aurora-deer", tier: 5, name: "星海鲸王", symbol: "🐋", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "100% 0%", colors: ["#73d7ef", "#8b9ff3"], ink: "#174f7a" },
+  { id: "cosmic-whale", tier: 5, name: "极光孔雀", symbol: "🦚", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "0% 100%", colors: ["#65d8ad", "#a67de8"], ink: "#205d53" },
+  { id: "rainbow-unicorn", tier: 5, name: "钻石雪豹", symbol: "🐆", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "100% 100%", colors: ["#d1d8ea", "#f2acd8"], ink: "#3e4b68" },
 ];
 
 let rewardCollection = createEmptyRewardCollection();
@@ -221,7 +221,7 @@ function renderStickerGraphic(element, sticker) {
 
   if (sticker.spritePosition) {
     element.style.setProperty("--sprite-position", sticker.spritePosition);
-    element.style.setProperty("--sprite-image", "url('./assets/stickers/tier-5-legendary.svg')");
+    element.style.setProperty("--sprite-image", `url('${sticker.spriteImage}')`);
   }
 }
 

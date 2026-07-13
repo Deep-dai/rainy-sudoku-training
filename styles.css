@@ -984,6 +984,21 @@ svg circle {
   background-position: var(--sprite-position);
   background-size: 200% 200%;
   border-radius: 30%;
+  filter: saturate(1.04) contrast(1.02);
+  transform: scale(1.04);
+}
+
+.sticker-art[data-tier="3"] .sticker-sprite {
+  filter: saturate(1.1) contrast(1.03);
+}
+
+.sticker-art[data-tier="4"] .sticker-sprite {
+  filter: saturate(1.1) contrast(1.04) drop-shadow(0 0 8px rgba(255, 210, 238, 0.52));
+  transform: scale(1.12);
+  animation: plush-glow 4.2s ease-in-out infinite;
+}
+
+.sticker-art[data-tier="5"] .sticker-sprite {
   filter: saturate(1.16) contrast(1.04);
   transform: scale(1.12);
   animation: legendary-glow 3s ease-in-out infinite;
@@ -1264,6 +1279,16 @@ svg circle {
   }
   50% {
     filter: saturate(1.3) contrast(1.06) brightness(1.08);
+  }
+}
+
+@keyframes plush-glow {
+  0%,
+  100% {
+    filter: saturate(1.08) contrast(1.03) brightness(1);
+  }
+  50% {
+    filter: saturate(1.16) contrast(1.04) brightness(1.04) drop-shadow(0 0 8px rgba(255, 210, 238, 0.52));
   }
 }
 
