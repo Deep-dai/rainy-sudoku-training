@@ -20,6 +20,13 @@ const REWARD_DIFFICULTY_MAP = {
   "9:master": 5,
 };
 
+const REWARD_TIER_CHANCES = {
+  "9:very": [
+    { tier: 4, upperBound: 0.8 },
+    { tier: 5, upperBound: 1 },
+  ],
+};
+
 const STICKER_CATALOG = [
   { id: "sunny-star", tier: 1, name: "晴天星星", symbol: "⭐", colors: ["#ffe57a", "#ff9d72"], ink: "#704500" },
   { id: "rainbow-bridge", tier: 1, name: "彩虹桥", symbol: "🌈", colors: ["#9de7dc", "#ffc4df"], ink: "#275b66" },
@@ -37,10 +44,10 @@ const STICKER_CATALOG = [
   { id: "blue-whale", tier: 4, name: "灰色兔兔", symbol: "🐰", spriteImage: "./assets/stickers/tier-4-plush.jpg", spritePosition: "100% 0%", colors: ["#c8c1c6", "#cfc0ed"], ink: "#51485d" },
   { id: "jewel-peacock", tier: 4, name: "毛绒长颈鹿", symbol: "🦒", spriteImage: "./assets/stickers/tier-4-plush.jpg", spritePosition: "0% 100%", colors: ["#f5c36f", "#f3aa94"], ink: "#71461f" },
   { id: "snow-leopard", tier: 4, name: "星光伊布", symbol: "✦", spriteImage: "./assets/stickers/tier-4-plush.jpg", spritePosition: "100% 100%", colors: ["#c98e64", "#ffe0a8"], ink: "#5f3b2b" },
-  { id: "golden-lion", tier: 5, name: "日曜虎王", symbol: "🐯", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "0% 0%", colors: ["#ffd65a", "#ff8c75"], ink: "#6c3d00" },
-  { id: "aurora-deer", tier: 5, name: "星海鲸王", symbol: "🐋", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "100% 0%", colors: ["#73d7ef", "#8b9ff3"], ink: "#174f7a" },
-  { id: "cosmic-whale", tier: 5, name: "极光孔雀", symbol: "🦚", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "0% 100%", colors: ["#65d8ad", "#a67de8"], ink: "#205d53" },
-  { id: "rainbow-unicorn", tier: 5, name: "钻石雪豹", symbol: "🐆", spriteImage: "./assets/stickers/tier-5-legendary.svg", spritePosition: "100% 100%", colors: ["#d1d8ea", "#f2acd8"], ink: "#3e4b68" },
+  { id: "golden-lion", tier: 5, name: "金瞳小黑龙", symbol: "🐉", spriteImage: "./assets/stickers/tier-5-friends.jpg", spritePosition: "0% 0%", colors: ["#ffd65a", "#ff8c75"], ink: "#6c3d00" },
+  { id: "aurora-deer", tier: 5, name: "星雪小白虎", symbol: "🐯", spriteImage: "./assets/stickers/tier-5-friends.jpg", spritePosition: "100% 0%", colors: ["#73d7ef", "#8b9ff3"], ink: "#174f7a" },
+  { id: "cosmic-whale", tier: 5, name: "皇冠小黄鸭", symbol: "🐥", spriteImage: "./assets/stickers/tier-5-friends.jpg", spritePosition: "0% 100%", colors: ["#65d8ad", "#a67de8"], ink: "#205d53" },
+  { id: "rainbow-unicorn", tier: 5, name: "月光光煞", symbol: "🐲", spriteImage: "./assets/stickers/tier-5-friends.jpg", spritePosition: "100% 100%", colors: ["#d1d8ea", "#f2acd8"], ink: "#3e4b68" },
 ];
 
 let rewardCollection = createEmptyRewardCollection();
@@ -58,6 +65,12 @@ function initRewards() {
   els.collectionDialog.addEventListener("click", (event) => {
     if (event.target === els.collectionDialog) {
       closeCollection();
+    }
+  });
+  els.closeStickerPreviewButton.addEventListener("click", closeStickerPreview);
+  els.stickerPreviewDialog.addEventListener("click", (event) => {
+    if (event.target === els.stickerPreviewDialog) {
+      closeStickerPreview();
     }
   });
 }
@@ -104,6 +117,16 @@ function getRewardTier(size, difficulty) {
   return REWARD_DIFFICULTY_MAP[`${size}:${difficulty}`] ?? 1;
 }
 
+function selectRewardTier(size, difficulty, random = Math.random) {
+  const chances = REWARD_TIER_CHANCES[`${size}:${difficulty}`];
+  if (!chances) {
+    return getRewardTier(size, difficulty);
+  }
+
+  const roll = random();
+  return chances.find(({ upperBound }) => roll < upperBound)?.tier ?? chances[chances.length - 1].tier;
+}
+
 function getStickerLevel(count) {
   return Math.min(3, Math.max(0, count - 1));
 }
@@ -121,7 +144,7 @@ function grantCompletionReward(random = Math.random) {
     return state.currentReward;
   }
 
-  const tier = getRewardTier(state.size, state.difficulty);
+  const tier = selectRewardTier(state.size, state.difficulty, random);
   const sticker = selectRewardSticker(tier, rewardCollection, random);
   const previousCount = rewardCollection.stickers[sticker.id]?.count ?? 0;
   const count = previousCount + 1;
@@ -282,9 +305,16 @@ function createStickerCard(sticker) {
   const entry = rewardCollection.stickers[sticker.id];
   const count = entry?.count ?? 0;
   const level = getStickerLevel(count);
-  const card = document.createElement("article");
+  const card = document.createElement(count ? "button" : "article");
   card.className = "sticker-card";
   card.classList.toggle("is-locked", count === 0);
+  card.classList.toggle("is-unlocked", count > 0);
+
+  if (count) {
+    card.type = "button";
+    card.setAttribute("aria-label", `放大查看${sticker.name}，已收集${count}次`);
+    card.addEventListener("click", () => openStickerPreview(sticker, count, level));
+  }
 
   const art = document.createElement("div");
   art.className = "sticker-art sticker-card-art";
@@ -313,4 +343,27 @@ function createStickerCard(sticker) {
   copy.append(name, stars, quantity);
   card.append(art, copy);
   return card;
+}
+
+function openStickerPreview(sticker, count, level) {
+  applyStickerTheme(els.stickerPreviewArt, sticker, level);
+  renderStickerGraphic(els.stickerPreviewSymbol, sticker);
+  els.stickerPreviewTier.textContent = `${REWARD_TIER_INFO[sticker.tier].shortName} · ${REWARD_TIER_INFO[sticker.tier].name}`;
+  els.stickerPreviewName.textContent = sticker.name;
+  renderStars(els.stickerPreviewStars, level);
+  els.stickerPreviewCount.textContent = `已经收集 ${count} 次`;
+
+  if (typeof els.stickerPreviewDialog.showModal === "function") {
+    els.stickerPreviewDialog.showModal();
+  } else {
+    els.stickerPreviewDialog.setAttribute("open", "");
+  }
+}
+
+function closeStickerPreview() {
+  if (typeof els.stickerPreviewDialog.close === "function") {
+    els.stickerPreviewDialog.close();
+  } else {
+    els.stickerPreviewDialog.removeAttribute("open");
+  }
 }

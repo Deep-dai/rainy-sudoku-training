@@ -1198,6 +1198,29 @@ svg circle {
   box-shadow: 0 7px 18px rgba(38, 54, 74, 0.08);
 }
 
+button.sticker-card {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  color: inherit;
+  text-align: left;
+}
+
+.sticker-card.is-unlocked {
+  cursor: zoom-in;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.sticker-card.is-unlocked:hover {
+  border-color: rgba(58, 183, 166, 0.58);
+  box-shadow: 0 11px 24px rgba(38, 54, 74, 0.14);
+  transform: translateY(-2px);
+}
+
+.sticker-card.is-unlocked:active {
+  transform: translateY(0) scale(0.98);
+}
+
 .sticker-card-art {
   width: 72px;
   border-width: 4px;
@@ -1244,6 +1267,69 @@ svg circle {
   font-size: 0.72rem;
   font-weight: 750;
   line-height: 1.35;
+}
+
+.sticker-preview-dialog {
+  width: min(520px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  color: var(--ink);
+  background: #fffdf8;
+  box-shadow: 0 28px 90px rgba(38, 54, 74, 0.46);
+  overflow: hidden;
+}
+
+.sticker-preview-dialog::backdrop {
+  background: rgba(38, 54, 74, 0.58);
+  backdrop-filter: blur(5px);
+}
+
+.sticker-preview-shell {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  max-height: calc(100vh - 24px);
+  padding: 32px 28px 28px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.sticker-preview-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+}
+
+.sticker-preview-art {
+  width: clamp(250px, 44vw, 370px);
+  margin: 18px 0 24px;
+}
+
+.sticker-preview-art .sticker-symbol {
+  font-size: clamp(6rem, 18vw, 10rem);
+}
+
+.sticker-preview-shell h2 {
+  margin: 10px 0 2px;
+  font-size: 1.65rem;
+}
+
+.sticker-preview-stars {
+  justify-content: center;
+  min-height: 30px;
+}
+
+.sticker-preview-stars .sticker-star {
+  font-size: 1.35rem;
+}
+
+.sticker-preview-shell p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-weight: 800;
 }
 
 @keyframes sticker-pop {
@@ -1449,6 +1535,30 @@ svg circle {
   }
 }
 
+@media (max-width: 900px) {
+  button.sticker-card {
+    text-align: center;
+  }
+
+  .sticker-preview-dialog {
+    width: calc(100% - 12px);
+    max-height: calc(100% - 12px);
+    border-radius: 18px;
+  }
+
+  .sticker-preview-shell {
+    min-height: min(620px, calc(100vh - 12px));
+    max-height: calc(100vh - 12px);
+    align-content: center;
+    padding: 24px 16px 22px;
+  }
+
+  .sticker-preview-art {
+    width: min(74vw, 340px);
+    margin-bottom: 20px;
+  }
+}
+
 @media (min-width: 641px) and (max-width: 900px) {
   .sticker-card {
     grid-template-columns: 1fr;
@@ -1649,6 +1759,7 @@ svg circle {
   .sticker-card-stars {
     justify-content: center;
   }
+
 }
 
 @media (max-width: 390px) {

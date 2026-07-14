@@ -89,12 +89,43 @@ assert.deepEqual([...new Set(illustratedStickers.map((sticker) => sticker.sprite
   "./assets/stickers/tier-2-cute.jpg",
   "./assets/stickers/tier-3-magic.jpg",
   "./assets/stickers/tier-4-plush.jpg",
-  "./assets/stickers/tier-5-legendary.svg",
+  "./assets/stickers/tier-5-friends.jpg",
 ]);
 assert.deepEqual(
   illustratedStickers.filter((sticker) => sticker.tier === 4).map((sticker) => sticker.name),
   ["粉色兔兔", "灰色兔兔", "毛绒长颈鹿", "星光伊布"],
 );
+assert.deepEqual(
+  illustratedStickers.filter((sticker) => sticker.tier === 5).map((sticker) => sticker.name),
+  ["金瞳小黑龙", "星雪小白虎", "皇冠小黄鸭", "月光光煞"],
+);
+assert.equal(fs.existsSync("assets/stickers/tier-5-friends.jpg"), true);
+
+const collectionMarkup = fs.readFileSync("index.html", "utf8");
+["stickerPreviewDialog", "stickerPreviewArt", "stickerPreviewName", "stickerPreviewCount"].forEach((id) => {
+  assert.match(collectionMarkup, new RegExp(`id="${id}"`));
+});
+
+const tierChanceResults = vm.runInContext(`[
+  selectRewardTier(9, "very", () => 0),
+  selectRewardTier(9, "very", () => 0.799999),
+  selectRewardTier(9, "very", () => 0.8),
+  selectRewardTier(9, "very", () => 0.999999),
+  selectRewardTier(9, "super", () => 0.99),
+  selectRewardTier(9, "expert", () => 0),
+]`, context);
+assert.deepEqual([...tierChanceResults], [4, 4, 5, 5, 3, 5]);
+
+const mixedGrantTier = vm.runInContext(`(() => {
+  rewardCollection = createEmptyRewardCollection();
+  state.size = 9;
+  state.difficulty = "very";
+  state.rewardGranted = false;
+  state.currentReward = null;
+  const randomValues = [0.9, 0.9, 0];
+  return grantCompletionReward(() => randomValues.shift()).tier;
+})()`, context);
+assert.equal(mixedGrantTier, 5);
 
 const levels = vm.runInContext(`[0, 1, 2, 3, 4, 9].map(getStickerLevel)`, context);
 assert.deepEqual([...levels], [0, 0, 1, 2, 3, 3]);
@@ -219,4 +250,4 @@ assert.deepEqual(submissionResults, {
   raceCorrect: { locked: true, awards: 2, hasReward: true },
 });
 
-console.log("Reward tests passed: mapping, draw weighting, duplicate guard, upgrades, hint badge, storage recovery, and submission paths.");
+console.log("Reward tests passed: mapping, tier probability, draw weighting, duplicate guard, upgrades, hint badge, storage recovery, and submission paths.");

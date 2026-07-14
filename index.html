@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./app-icon.svg">
-    <link rel="stylesheet" href="./styles.css?v=17">
+    <link rel="stylesheet" href="./styles.css?v=18">
   </head>
   <body>
     <main class="app-shell">
@@ -222,11 +222,29 @@
       </div>
     </dialog>
 
-    <script src="./scripts/app-state.js?v=17" defer></script>
-    <script src="./scripts/app-game.js?v=17" defer></script>
-    <script src="./scripts/app-ui.js?v=17" defer></script>
-    <script src="./scripts/app-rules.js?v=17" defer></script>
-    <script src="./scripts/app-rewards.js?v=17" defer></script>
-    <script src="./scripts/app-utils.js?v=17" defer></script>
+    <dialog class="sticker-preview-dialog" id="stickerPreviewDialog" aria-labelledby="stickerPreviewName">
+      <div class="sticker-preview-shell">
+        <button class="icon-button sticker-preview-close" id="closeStickerPreviewButton" type="button" aria-label="关闭贴纸大图">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m6 6 12 12"></path>
+            <path d="M18 6 6 18"></path>
+          </svg>
+        </button>
+        <div class="sticker-art sticker-preview-art" id="stickerPreviewArt">
+          <span class="sticker-symbol" id="stickerPreviewSymbol" aria-hidden="true"></span>
+        </div>
+        <span class="tier-badge" id="stickerPreviewTier"></span>
+        <h2 id="stickerPreviewName"></h2>
+        <div class="sticker-stars sticker-preview-stars" id="stickerPreviewStars" aria-label="贴纸星级"></div>
+        <p id="stickerPreviewCount"></p>
+      </div>
+    </dialog>
+
+    <script src="./scripts/app-state.js?v=18" defer></script>
+    <script src="./scripts/app-game.js?v=18" defer></script>
+    <script src="./scripts/app-ui.js?v=18" defer></script>
+    <script src="./scripts/app-rules.js?v=18" defer></script>
+    <script src="./scripts/app-rewards.js?v=18" defer></script>
+    <script src="./scripts/app-utils.js?v=18" defer></script>
   </body>
 </html>
