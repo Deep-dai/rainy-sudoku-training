@@ -120,20 +120,19 @@ function startNewGame() {
 
 function createPuzzle(size, difficulty) {
   const difficultyConfig = getDifficultyConfig(size, difficulty);
-  const maxAttempts = difficultyConfig.allowAdvancedLogic ? 48 : size === 9 ? 32 : 12;
+  const maxAttempts = difficultyConfig.requiresHiddenSingles ? 96 : size === 9 ? 32 : 12;
   let best = null;
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const targetBlanks = randomInt(difficultyConfig.min, difficultyConfig.max);
     const candidate = createPuzzleAttempt(size, difficulty, targetBlanks);
-    candidate.openingSingles = countOpeningSingles(candidate.puzzle, size);
-    candidate.meetsOpeningGoal = meetsOpeningGoal(candidate, difficultyConfig);
+    assessPuzzleCandidate(candidate, size, difficultyConfig);
 
-    if (!best || getCandidateScore(candidate) > getCandidateScore(best)) {
+    if (!best || getCandidateScore(candidate, difficultyConfig) > getCandidateScore(best, difficultyConfig)) {
       best = candidate;
     }
 
-    if (candidate.blankCount >= difficultyConfig.min && candidate.meetsOpeningGoal) {
+    if (meetsDifficultyGoal(candidate, difficultyConfig)) {
       return {
         solution: candidate.solution,
         puzzle: candidate.puzzle,
@@ -181,13 +180,40 @@ function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function meetsOpeningGoal(candidate, difficultyConfig) {
-  return candidate.openingSingles >= (difficultyConfig.openingSingles ?? 0);
+function assessPuzzleCandidate(candidate, size, difficultyConfig) {
+  candidate.openingSingles = countOpeningSingles(candidate.puzzle, size);
+  if (difficultyConfig.requiresHiddenSingles) {
+    candidate.nakedOnlySolvable = canSolveWithBasicLogic(candidate.puzzle, size, false);
+  }
 }
 
-function getCandidateScore(candidate) {
-  const openingBonus = candidate.meetsOpeningGoal ? 1000 : 0;
-  return openingBonus + candidate.blankCount + candidate.openingSingles / 100;
+function meetsDifficultyGoal(candidate, difficultyConfig) {
+  if (candidate.blankCount < difficultyConfig.min) {
+    return false;
+  }
+
+  if (candidate.openingSingles < (difficultyConfig.openingSingles ?? 0)) {
+    return false;
+  }
+
+  if (candidate.openingSingles > (difficultyConfig.maxOpeningSingles ?? Number.POSITIVE_INFINITY)) {
+    return false;
+  }
+
+  if (difficultyConfig.requiresHiddenSingles && candidate.nakedOnlySolvable) {
+    return false;
+  }
+
+  return true;
+}
+
+function getCandidateScore(candidate, difficultyConfig) {
+  const minimum = difficultyConfig.openingSingles ?? 0;
+  const maximum = difficultyConfig.maxOpeningSingles ?? Number.POSITIVE_INFINITY;
+  const openingPenalty = Math.max(0, minimum - candidate.openingSingles)
+    + Math.max(0, candidate.openingSingles - maximum);
+  const hiddenSingleBonus = difficultyConfig.requiresHiddenSingles && !candidate.nakedOnlySolvable ? 500 : 0;
+  return hiddenSingleBonus + candidate.blankCount * 10 - openingPenalty * 100;
 }
 
 function countOpeningSingles(grid, size) {
@@ -211,10 +237,6 @@ function countOpeningSingles(grid, size) {
 
 function matchesDifficulty(grid, size, difficulty) {
   const difficultyConfig = getDifficultyConfig(size, difficulty);
-
-  if (difficultyConfig.allowAdvancedLogic) {
-    return true;
-  }
 
   if (!difficultyConfig.allowHiddenSingles) {
     return canSolveWithBasicLogic(grid, size, false);
@@ -348,6 +370,10 @@ function countSolutions(grid, size, limit = 2) {
 }
 
 function canSolveWithBasicLogic(grid, size, allowHiddenSingles) {
+  return analyzeBasicLogic(grid, size, allowHiddenSingles).solved;
+}
+
+function analyzeBasicLogic(grid, size, allowHiddenSingles = true) {
   const config = SIZE_CONFIG[size];
   const board = grid.map((row) => row.slice());
   let progress = true;
@@ -363,7 +389,7 @@ function canSolveWithBasicLogic(grid, size, allowHiddenSingles) {
 
         const candidates = getGridCandidates(board, row, col, config, size);
         if (candidates.length === 0) {
-          return false;
+          return { board, remaining: countEmptyCells(board), solved: false };
         }
 
         if (candidates.length === 1) {
@@ -378,7 +404,12 @@ function canSolveWithBasicLogic(grid, size, allowHiddenSingles) {
     }
   }
 
-  return board.every((row) => row.every(Boolean));
+  const remaining = countEmptyCells(board);
+  return { board, remaining, solved: remaining === 0 };
+}
+
+function countEmptyCells(board) {
+  return board.reduce((total, row) => total + row.filter((value) => !value).length, 0);
 }
 
 function fillHiddenSingles(board, config, size) {

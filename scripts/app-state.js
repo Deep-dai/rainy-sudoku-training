@@ -17,9 +17,16 @@ const SIZE_CONFIG = {
       super: { min: 18, max: 25, allowHiddenSingles: false, openingSingles: 5 },
       very: { min: 25, max: 30, allowHiddenSingles: false },
       expert: { min: 38, max: 44, allowHiddenSingles: true },
-      master: { min: 45, max: 50, allowAdvancedLogic: true },
+      master: {
+        min: 44,
+        max: 47,
+        allowHiddenSingles: true,
+        openingSingles: 2,
+        maxOpeningSingles: 6,
+        requiresHiddenSingles: true,
+      },
     },
-    defaultMinutes: 12,
+    defaultMinutes: 20,
   },
 };
 
