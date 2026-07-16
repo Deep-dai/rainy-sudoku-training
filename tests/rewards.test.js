@@ -106,6 +106,23 @@ const collectionMarkup = fs.readFileSync("index.html", "utf8");
   assert.match(collectionMarkup, new RegExp(`id="${id}"`));
 });
 
+const rewardStyles = fs.readFileSync("styles.css", "utf8");
+assert.match(rewardStyles, /\.sticker-card-art \.sticker-sprite\s*\{[\s\S]*?animation: none !important;/);
+assert.match(rewardStyles, /\.reward-sticker-art\.is-animating\[data-reveal="upgrade"\]\[data-level="1"\]/);
+assert.match(rewardStyles, /\.reward-sticker-art\.is-animating\[data-reveal="upgrade"\]\[data-level="2"\]/);
+assert.match(rewardStyles, /\.reward-sticker-art\.is-animating\[data-reveal="upgrade"\]\[data-level="3"\]/);
+assert.match(rewardStyles, /\.sticker-preview-art\.is-animating\[data-level="3"\]/);
+assert.match(rewardStyles, /animation: one-star-reveal 820ms/);
+assert.match(rewardStyles, /animation: two-star-reveal 1\.58s/);
+assert.match(rewardStyles, /animation: three-star-reveal 2\.28s/);
+assert.match(rewardStyles, /@keyframes one-star-flash/);
+assert.match(rewardStyles, /@keyframes two-star-double-sweep/);
+assert.match(rewardStyles, /@keyframes three-star-halo/);
+assert.match(rewardStyles, /@keyframes one-star-award/);
+assert.match(rewardStyles, /@keyframes two-star-award/);
+assert.match(rewardStyles, /@keyframes three-star-award/);
+assert.doesNotMatch(rewardStyles, /\.sticker-art\[data-level="[123]"\]::after/);
+
 const tierChanceResults = vm.runInContext(`[
   selectRewardTier(9, "very", () => 0),
   selectRewardTier(9, "very", () => 0.799999),

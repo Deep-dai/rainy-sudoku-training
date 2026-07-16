@@ -184,16 +184,17 @@ function getUnlockedStickerCount() {
 }
 
 function renderRewardReveal(reward) {
-  const { sticker, tier, count, level, isNew, independent } = reward;
+  const { sticker, tier, count, level, isNew, upgraded, independent } = reward;
   els.rewardReveal.hidden = false;
   els.rewardReveal.dataset.tier = String(tier);
   els.resultCollectionButton.hidden = false;
   els.resultDialog.classList.add("has-reward");
   applyStickerTheme(els.rewardStickerArt, sticker, level);
+  els.rewardStickerArt.dataset.reveal = upgraded ? "upgrade" : isNew ? "new" : "repeat";
   renderStickerGraphic(els.rewardStickerSymbol, sticker);
   els.rewardTierLabel.textContent = `${REWARD_TIER_INFO[tier].shortName} · ${REWARD_TIER_INFO[tier].name}`;
   els.rewardStickerName.textContent = sticker.name;
-  renderStars(els.rewardStickerStars, level);
+  renderStars(els.rewardStickerStars, level, upgraded ? level : 0);
   els.independentBadge.hidden = !independent;
 
   if (isNew) {
@@ -210,21 +211,41 @@ function hideRewardReveal() {
   els.resultCollectionButton.hidden = true;
   els.resultDialog.classList.remove("has-reward");
   els.rewardReveal.removeAttribute("data-tier");
+  els.rewardStickerArt.removeAttribute("data-reveal");
   els.independentBadge.hidden = true;
+  stopStickerAnimation(els.rewardStickerArt, els.rewardStickerStars);
 }
 
-function renderStars(container, level) {
+function renderStars(container, level, highlightedLevel = 0) {
   container.replaceChildren();
   container.setAttribute("aria-label", level ? `${level} 星贴纸` : "新贴纸");
+  container.dataset.level = String(level);
 
   for (let index = 1; index <= 3; index += 1) {
     const star = document.createElement("span");
     star.className = "sticker-star";
     star.classList.toggle("is-filled", index <= level);
+    star.classList.toggle("is-newly-earned", index === highlightedLevel);
     star.textContent = "★";
     star.setAttribute("aria-hidden", "true");
     container.append(star);
   }
+}
+
+function playRewardRevealAnimation() {
+  restartStickerAnimation(els.rewardStickerArt, els.rewardStickerStars);
+}
+
+function restartStickerAnimation(art, stars) {
+  stopStickerAnimation(art, stars);
+  void art.offsetWidth;
+  art.classList.add("is-animating");
+  stars.classList.add("is-animating");
+}
+
+function stopStickerAnimation(art, stars) {
+  art.classList.remove("is-animating");
+  stars.classList.remove("is-animating");
 }
 
 function applyStickerTheme(element, sticker, level = 0) {
@@ -358,9 +379,12 @@ function openStickerPreview(sticker, count, level) {
   } else {
     els.stickerPreviewDialog.setAttribute("open", "");
   }
+
+  restartStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
 }
 
 function closeStickerPreview() {
+  stopStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
   if (typeof els.stickerPreviewDialog.close === "function") {
     els.stickerPreviewDialog.close();
   } else {

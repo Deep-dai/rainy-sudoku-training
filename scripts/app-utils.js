@@ -163,6 +163,9 @@ function showResult(title, text, options = {}) {
 
   if (typeof els.resultDialog.showModal === "function") {
     els.resultDialog.showModal();
+    if (options.reward) {
+      playRewardRevealAnimation();
+    }
   } else {
     window.alert(`${title}\n${text}`);
   }
