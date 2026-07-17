@@ -102,12 +102,24 @@ assert.deepEqual(
 assert.equal(fs.existsSync("assets/stickers/tier-5-friends.jpg"), true);
 
 const collectionMarkup = fs.readFileSync("index.html", "utf8");
-["stickerPreviewDialog", "stickerPreviewArt", "stickerPreviewName", "stickerPreviewCount"].forEach((id) => {
+["stickerPreviewDialog", "stickerPreviewArt", "stickerPreviewName", "stickerPreviewCount", "previousStickerLevelButton", "nextStickerLevelButton", "stickerPreviewLevelLabel", "stickerPreviewLevelDots"].forEach((id) => {
   assert.match(collectionMarkup, new RegExp(`id="${id}"`));
 });
+assert.equal((collectionMarkup.match(/class="sticker-level-decor"/g) || []).length, 2);
 
 const rewardStyles = fs.readFileSync("styles.css", "utf8");
-assert.match(rewardStyles, /\.sticker-card-art \.sticker-sprite\s*\{[\s\S]*?animation: none !important;/);
+assert.match(rewardStyles, /\.sticker-card-art \.sticker-sprite,[\s\S]*?animation: none !important;/);
+assert.match(rewardStyles, /\.sticker-card-art \.sticker-level-decor::after\s*\{[\s\S]*?animation: none !important;/);
+assert.match(rewardStyles, /\.sticker-art\[data-level="1"\] \.sticker-level-decor::after/);
+assert.match(rewardStyles, /\.sticker-art\[data-level="2"\] \.sticker-level-decor::after/);
+assert.match(rewardStyles, /\.sticker-art\[data-level="3"\] \.sticker-level-decor::before/);
+assert.doesNotMatch(rewardStyles, /content: "♛"/);
+assert.match(rewardStyles, /content: "✦"/);
+assert.doesNotMatch(rewardStyles, /level-three-crystal-rise/);
+assert.match(rewardStyles, /@keyframes level-three-border-flow/);
+assert.match(rewardStyles, /@keyframes level-three-inner-pulse/);
+assert.match(rewardStyles, /\.sticker-preview-level-button\.is-previous/);
+assert.match(rewardStyles, /\.sticker-preview-level-dot\.is-active/);
 assert.match(rewardStyles, /\.reward-sticker-art\.is-animating\[data-reveal="upgrade"\]\[data-level="1"\]/);
 assert.match(rewardStyles, /\.reward-sticker-art\.is-animating\[data-reveal="upgrade"\]\[data-level="2"\]/);
 assert.match(rewardStyles, /\.reward-sticker-art\.is-animating\[data-reveal="upgrade"\]\[data-level="3"\]/);
@@ -122,6 +134,11 @@ assert.match(rewardStyles, /@keyframes one-star-award/);
 assert.match(rewardStyles, /@keyframes two-star-award/);
 assert.match(rewardStyles, /@keyframes three-star-award/);
 assert.doesNotMatch(rewardStyles, /\.sticker-art\[data-level="[123]"\]::after/);
+
+const rewardScript = fs.readFileSync("scripts/app-rewards.js", "utf8");
+assert.match(rewardScript, /function changeStickerPreviewLevel\(direction\)/);
+assert.match(rewardScript, /function renderStickerPreviewLevelDots\(maxLevel, displayedLevel\)/);
+assert.match(rewardScript, /初始形态 · 无星/);
 
 const tierChanceResults = vm.runInContext(`[
   selectRewardTier(9, "very", () => 0),

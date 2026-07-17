@@ -1,6 +1,13 @@
 const REWARD_STORAGE_KEY = "rainy-sudoku-rewards-v1";
 const REWARD_STORAGE_VERSION = 1;
 
+const STICKER_LEVEL_INFO = [
+  { label: "初始形态 · 无星", shortLabel: "无星" },
+  { label: "一星形态 · 点亮", shortLabel: "一星" },
+  { label: "二星形态 · 聚能", shortLabel: "二星" },
+  { label: "三星形态 · 觉醒", shortLabel: "三星" },
+];
+
 const REWARD_TIER_INFO = {
   1: { name: "小贴纸", shortName: "1级", description: "快乐的小小收藏" },
   2: { name: "可爱动物", shortName: "2级", description: "认识新的动物朋友" },
@@ -51,6 +58,7 @@ const STICKER_CATALOG = [
 ];
 
 let rewardCollection = createEmptyRewardCollection();
+let stickerPreviewState = null;
 
 function initRewards() {
   rewardCollection = readRewardCollection();
@@ -68,9 +76,18 @@ function initRewards() {
     }
   });
   els.closeStickerPreviewButton.addEventListener("click", closeStickerPreview);
+  els.previousStickerLevelButton.addEventListener("click", () => changeStickerPreviewLevel(-1));
+  els.nextStickerLevelButton.addEventListener("click", () => changeStickerPreviewLevel(1));
   els.stickerPreviewDialog.addEventListener("click", (event) => {
     if (event.target === els.stickerPreviewDialog) {
       closeStickerPreview();
+    }
+  });
+  els.stickerPreviewDialog.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      changeStickerPreviewLevel(event.key === "ArrowLeft" ? -1 : 1);
+      event.preventDefault();
+      event.stopPropagation();
     }
   });
 }
@@ -349,7 +366,10 @@ function createStickerCard(sticker) {
     symbol.textContent = "✦";
   }
   symbol.setAttribute("aria-hidden", "true");
-  art.append(symbol);
+  const levelDecor = document.createElement("span");
+  levelDecor.className = "sticker-level-decor";
+  levelDecor.setAttribute("aria-hidden", "true");
+  art.append(symbol, levelDecor);
 
   const copy = document.createElement("div");
   copy.className = "sticker-card-copy";
@@ -367,12 +387,15 @@ function createStickerCard(sticker) {
 }
 
 function openStickerPreview(sticker, count, level) {
-  applyStickerTheme(els.stickerPreviewArt, sticker, level);
-  renderStickerGraphic(els.stickerPreviewSymbol, sticker);
+  stickerPreviewState = {
+    sticker,
+    count,
+    maxLevel: level,
+    displayedLevel: level,
+  };
   els.stickerPreviewTier.textContent = `${REWARD_TIER_INFO[sticker.tier].shortName} · ${REWARD_TIER_INFO[sticker.tier].name}`;
   els.stickerPreviewName.textContent = sticker.name;
-  renderStars(els.stickerPreviewStars, level);
-  els.stickerPreviewCount.textContent = `已经收集 ${count} 次`;
+  renderStickerPreviewLevel(level);
 
   if (typeof els.stickerPreviewDialog.showModal === "function") {
     els.stickerPreviewDialog.showModal();
@@ -383,6 +406,75 @@ function openStickerPreview(sticker, count, level) {
   restartStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
 }
 
+function changeStickerPreviewLevel(direction) {
+  if (!stickerPreviewState) {
+    return;
+  }
+
+  const nextLevel = Math.min(
+    stickerPreviewState.maxLevel,
+    Math.max(0, stickerPreviewState.displayedLevel + direction)
+  );
+
+  if (nextLevel === stickerPreviewState.displayedLevel) {
+    return;
+  }
+
+  renderStickerPreviewLevel(nextLevel, true);
+}
+
+function renderStickerPreviewLevel(level, animate = false) {
+  if (!stickerPreviewState) {
+    return;
+  }
+
+  const { sticker, count, maxLevel } = stickerPreviewState;
+  const displayedLevel = Math.min(maxLevel, Math.max(0, level));
+  stickerPreviewState.displayedLevel = displayedLevel;
+
+  applyStickerTheme(els.stickerPreviewArt, sticker, displayedLevel);
+  renderStickerGraphic(els.stickerPreviewSymbol, sticker);
+  renderStars(els.stickerPreviewStars, displayedLevel);
+  els.stickerPreviewLevelLabel.textContent = STICKER_LEVEL_INFO[displayedLevel].label;
+  els.stickerPreviewCount.textContent = displayedLevel === maxLevel
+    ? `当前收藏形态 · 已收集 ${count} 次`
+    : `形态回顾 ${displayedLevel + 1}/${maxLevel + 1} · 最高已达到 ${STICKER_LEVEL_INFO[maxLevel].shortLabel}`;
+
+  els.previousStickerLevelButton.hidden = maxLevel === 0;
+  els.nextStickerLevelButton.hidden = maxLevel === 0;
+  els.previousStickerLevelButton.disabled = displayedLevel === 0;
+  els.nextStickerLevelButton.disabled = displayedLevel === maxLevel;
+  els.previousStickerLevelButton.setAttribute(
+    "aria-label",
+    displayedLevel > 0 ? `查看${STICKER_LEVEL_INFO[displayedLevel - 1].label}` : "已经是最初形态"
+  );
+  els.nextStickerLevelButton.setAttribute(
+    "aria-label",
+    displayedLevel < maxLevel ? `查看${STICKER_LEVEL_INFO[displayedLevel + 1].label}` : "已经是当前最高形态"
+  );
+  renderStickerPreviewLevelDots(maxLevel, displayedLevel);
+
+  if (animate) {
+    restartStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
+  }
+}
+
+function renderStickerPreviewLevelDots(maxLevel, displayedLevel) {
+  const fragment = document.createDocumentFragment();
+
+  for (let level = 0; level <= maxLevel; level += 1) {
+    const dot = document.createElement("span");
+    dot.className = "sticker-preview-level-dot";
+    dot.classList.toggle("is-active", level === displayedLevel);
+    dot.classList.toggle("is-reached", level <= maxLevel);
+    dot.title = STICKER_LEVEL_INFO[level].label;
+    fragment.append(dot);
+  }
+
+  els.stickerPreviewLevelDots.replaceChildren(fragment);
+  els.stickerPreviewLevelDots.setAttribute("aria-label", `正在查看第 ${displayedLevel + 1} 个形态，共 ${maxLevel + 1} 个`);
+}
+
 function closeStickerPreview() {
   stopStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
   if (typeof els.stickerPreviewDialog.close === "function") {
@@ -390,4 +482,5 @@ function closeStickerPreview() {
   } else {
     els.stickerPreviewDialog.removeAttribute("open");
   }
+  stickerPreviewState = null;
 }

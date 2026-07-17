@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./app-icon.svg">
-    <link rel="stylesheet" href="./styles.css?v=22">
+    <link rel="stylesheet" href="./styles.css?v=26">
   </head>
   <body>
     <main class="app-shell">
@@ -185,6 +185,7 @@
           <div class="reward-sticker-stage">
             <div class="sticker-art reward-sticker-art" id="rewardStickerArt">
               <span class="sticker-symbol" id="rewardStickerSymbol" aria-hidden="true"></span>
+              <span class="sticker-level-decor" aria-hidden="true"></span>
             </div>
             <span class="independent-badge" id="independentBadge" hidden>独立完成</span>
           </div>
@@ -230,8 +231,21 @@
             <path d="M18 6 6 18"></path>
           </svg>
         </button>
-        <div class="sticker-art sticker-preview-art" id="stickerPreviewArt">
-          <span class="sticker-symbol" id="stickerPreviewSymbol" aria-hidden="true"></span>
+        <div class="sticker-preview-stage">
+          <button class="sticker-preview-level-button is-previous" id="previousStickerLevelButton" type="button" aria-label="查看上一形态">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg>
+          </button>
+          <div class="sticker-art sticker-preview-art" id="stickerPreviewArt">
+            <span class="sticker-symbol" id="stickerPreviewSymbol" aria-hidden="true"></span>
+            <span class="sticker-level-decor" aria-hidden="true"></span>
+          </div>
+          <button class="sticker-preview-level-button is-next" id="nextStickerLevelButton" type="button" aria-label="查看下一形态">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>
+          </button>
+        </div>
+        <div class="sticker-preview-history" aria-live="polite">
+          <strong id="stickerPreviewLevelLabel"></strong>
+          <div class="sticker-preview-level-dots" id="stickerPreviewLevelDots" aria-hidden="true"></div>
         </div>
         <span class="tier-badge" id="stickerPreviewTier"></span>
         <h2 id="stickerPreviewName"></h2>
@@ -240,11 +254,11 @@
       </div>
     </dialog>
 
-    <script src="./scripts/app-state.js?v=22" defer></script>
-    <script src="./scripts/app-game.js?v=22" defer></script>
-    <script src="./scripts/app-ui.js?v=22" defer></script>
-    <script src="./scripts/app-rules.js?v=22" defer></script>
-    <script src="./scripts/app-rewards.js?v=22" defer></script>
-    <script src="./scripts/app-utils.js?v=22" defer></script>
+    <script src="./scripts/app-state.js?v=26" defer></script>
+    <script src="./scripts/app-game.js?v=26" defer></script>
+    <script src="./scripts/app-ui.js?v=26" defer></script>
+    <script src="./scripts/app-rules.js?v=26" defer></script>
+    <script src="./scripts/app-rewards.js?v=26" defer></script>
+    <script src="./scripts/app-utils.js?v=26" defer></script>
   </body>
 </html>

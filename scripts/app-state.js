@@ -82,12 +82,16 @@ const els = {
   closeCollectionButton: document.querySelector("#closeCollectionButton"),
   stickerPreviewDialog: document.querySelector("#stickerPreviewDialog"),
   closeStickerPreviewButton: document.querySelector("#closeStickerPreviewButton"),
+  previousStickerLevelButton: document.querySelector("#previousStickerLevelButton"),
+  nextStickerLevelButton: document.querySelector("#nextStickerLevelButton"),
   stickerPreviewArt: document.querySelector("#stickerPreviewArt"),
   stickerPreviewSymbol: document.querySelector("#stickerPreviewSymbol"),
   stickerPreviewTier: document.querySelector("#stickerPreviewTier"),
   stickerPreviewName: document.querySelector("#stickerPreviewName"),
   stickerPreviewStars: document.querySelector("#stickerPreviewStars"),
   stickerPreviewCount: document.querySelector("#stickerPreviewCount"),
+  stickerPreviewLevelLabel: document.querySelector("#stickerPreviewLevelLabel"),
+  stickerPreviewLevelDots: document.querySelector("#stickerPreviewLevelDots"),
   settingButtons: [...document.querySelectorAll("[data-setting]")],
 };
 
