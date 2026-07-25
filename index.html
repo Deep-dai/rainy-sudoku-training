@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./app-icon.svg">
-    <link rel="stylesheet" href="./styles.css?v=26">
+    <link rel="stylesheet" href="./styles.css?v=36">
   </head>
   <body>
     <main class="app-shell">
@@ -125,6 +125,19 @@
             </div>
           </div>
 
+          <div class="cultivation-chip" id="cultivationChip" aria-live="polite" hidden>
+            <div class="sticker-art cultivation-art" id="cultivationArt">
+              <span class="sticker-symbol" id="cultivationArtSymbol" aria-hidden="true"></span>
+              <span class="sticker-level-decor" aria-hidden="true"></span>
+            </div>
+            <div class="cultivation-copy">
+              <strong id="cultivationName"></strong>
+              <span id="cultivationProgress"></span>
+            </div>
+            <button class="cultivation-cancel" id="cultivationCancel" type="button">取消培养</button>
+            <div class="cultivation-bar" aria-hidden="true"><span class="cultivation-fill" id="cultivationFill"></span></div>
+          </div>
+
           <div class="message-line" id="messageLine">选择一个格子，再点下面的数字。</div>
 
           <div class="board-wrap">
@@ -196,11 +209,34 @@
             <p id="rewardMessage"></p>
           </div>
         </section>
+        <section class="evolution-reveal" id="evolutionReveal" aria-label="本次积累的能量" hidden>
+          <div class="sticker-art evolution-reveal-art" id="evolutionRevealArt">
+            <span class="sticker-symbol" id="evolutionRevealSymbol" aria-hidden="true"></span>
+            <span class="sticker-level-decor" aria-hidden="true"></span>
+          </div>
+          <div class="evolution-reveal-copy">
+            <h3 id="evolutionRevealName"></h3>
+            <div class="evolution-energy-track"><span class="evolution-energy-fill" id="evolutionRevealFill"></span></div>
+            <p id="evolutionRevealMessage"></p>
+          </div>
+        </section>
         <div class="result-actions">
           <button class="tool-button" id="closeResultButton" type="button">继续看题</button>
           <button class="tool-button collection-result-button" id="resultCollectionButton" type="button" hidden>查看贴纸</button>
           <button class="primary-button" id="resultNewButton" type="button">再来一题</button>
         </div>
+      </div>
+    </dialog>
+
+    <dialog class="evolution-burst" id="evolutionBurst" aria-label="进化揭晓">
+      <div class="evolution-burst-particles" id="evolutionBurstParticles" aria-hidden="true"></div>
+      <div class="evolution-burst-inner">
+        <div class="sticker-art evolution-burst-art" id="evolutionBurstArt">
+          <span class="sticker-symbol" id="evolutionBurstSymbol" aria-hidden="true"></span>
+          <span class="sticker-level-decor" aria-hidden="true"></span>
+        </div>
+        <strong id="evolutionBurstTitle">进化啦！</strong>
+        <span id="evolutionBurstSub"></span>
       </div>
     </dialog>
 
@@ -251,14 +287,25 @@
         <h2 id="stickerPreviewName"></h2>
         <div class="sticker-stars sticker-preview-stars" id="stickerPreviewStars" aria-label="贴纸星级"></div>
         <p id="stickerPreviewCount"></p>
+        <p class="evolution-maxed" id="evolutionMaxed" hidden>🏆 已经觉醒最终形态，这位朋友养到顶了。</p>
+        <section class="evolution-panel" id="evolutionPanel" aria-label="能量积累" hidden>
+          <div class="evolution-energy-labels">
+            <span id="evolutionEnergyNow"></span>
+            <span id="evolutionEnergyTarget"></span>
+          </div>
+          <div class="evolution-energy-track"><span class="evolution-energy-fill" id="evolutionEnergyFill"></span></div>
+          <p class="evolution-hint" id="evolutionHint"></p>
+          <div class="evolution-difficulties" id="evolutionDifficulties"></div>
+        </section>
       </div>
     </dialog>
 
-    <script src="./scripts/app-state.js?v=26" defer></script>
-    <script src="./scripts/app-game.js?v=26" defer></script>
-    <script src="./scripts/app-ui.js?v=26" defer></script>
-    <script src="./scripts/app-rules.js?v=26" defer></script>
-    <script src="./scripts/app-rewards.js?v=26" defer></script>
-    <script src="./scripts/app-utils.js?v=26" defer></script>
+    <script src="./scripts/app-state.js?v=36" defer></script>
+    <script src="./scripts/app-game.js?v=36" defer></script>
+    <script src="./scripts/app-ui.js?v=36" defer></script>
+    <script src="./scripts/app-rules.js?v=36" defer></script>
+    <script src="./scripts/app-rewards.js?v=36" defer></script>
+    <script src="./scripts/app-evolution.js?v=36" defer></script>
+    <script src="./scripts/app-utils.js?v=36" defer></script>
   </body>
 </html>

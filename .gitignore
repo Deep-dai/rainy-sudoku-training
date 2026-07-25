@@ -1,0 +1,10 @@
+# 系统文件
+.DS_Store
+
+# 视频剪辑素材（体积大，不属于线上应用）
+video-edits/
+
+# 开发测试与原型页（不发布到线上）
+dev-seed.html
+rainy-companion-preview.html
+rainy-collection-achievement-preview.html

@@ -161,10 +161,28 @@ function showResult(title, text, options = {}) {
     hideRewardReveal();
   }
 
+  if (options.evolution) {
+    renderEvolutionReveal(options.evolution);
+    els.resultCollectionButton.hidden = false;
+    els.resultDialog.classList.add("has-reward");
+  } else {
+    hideEvolutionReveal();
+  }
+
   if (typeof els.resultDialog.showModal === "function") {
     els.resultDialog.showModal();
     if (options.reward) {
       playRewardRevealAnimation();
+    }
+    if (options.evolution) {
+      playEvolutionRevealAnimation();
+      if (options.evolution.evolved) {
+        playEvolutionBurst(options.evolution);
+        // 全屏进化特效盖住弹窗时先别填，等它退场再让新形态的能量条涨起来。
+        window.setTimeout(playEvolutionEnergyFill, 3200);
+      } else {
+        playEvolutionEnergyFill();
+      }
     }
   } else {
     window.alert(`${title}\n${text}`);
@@ -280,6 +298,39 @@ function shuffle(list) {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+
+// 调试辅助：只有在 dev-seed.html 里打开开关后才出现，正常游戏时完全不加载按钮。
+function initDevTools() {
+  try {
+    if (window.localStorage.getItem("rainy-dev-tools") !== "on") {
+      return;
+    }
+  } catch {
+    return;
+  }
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "dev-solve-button";
+  button.textContent = "🔧 秒填答案并交卷";
+  button.addEventListener("click", () => {
+    if (!state.solution.length || state.locked) {
+      return;
+    }
+
+    for (let index = 0; index < state.size * state.size; index += 1) {
+      const row = Math.floor(index / state.size);
+      const col = index % state.size;
+      if (!getPuzzleValue(index)) {
+        state.entries[index] = state.solution[row][col];
+      }
+    }
+
+    render();
+    submitBoard();
+  });
+  document.body.append(button);
 }
 
 init();

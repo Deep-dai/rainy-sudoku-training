@@ -32,8 +32,8 @@ function submitPractice() {
   els.coachText.textContent = "这次是自己检查并完成的，做得很好。";
   playTone("good");
   render();
-  const reward = grantCompletionReward();
-  showResult("太棒了！", `全部正确，用时 ${formatSeconds(getElapsedSeconds())}。`, { reward });
+  const outcome = grantCompletionOutcome();
+  showResult("太棒了！", `全部正确，用时 ${formatSeconds(getElapsedSeconds())}。`, outcome);
 }
 
 function submitRace() {
@@ -49,8 +49,8 @@ function submitRace() {
 
   if (wrongs.size === 0) {
     playTone("good");
-    const reward = grantCompletionReward();
-    showResult("交卷成功", `全部正确，用时 ${formatSeconds(getElapsedSeconds())}。`, { reward });
+    const outcome = grantCompletionOutcome();
+    showResult("交卷成功", `全部正确，用时 ${formatSeconds(getElapsedSeconds())}。`, outcome);
   } else {
     playTone("bad");
     showResult("交卷完成", `用时 ${formatSeconds(getElapsedSeconds())}，有 ${wrongs.size} 个空格或错误格子。可以关闭结果后查看标红的位置。`);

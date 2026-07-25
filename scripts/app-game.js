@@ -2,8 +2,10 @@ function init() {
   applySettingsToControls();
   bindEvents();
   initRewards();
+  initEvolution();
   startNewGame();
   registerServiceWorker();
+  initDevTools();
 }
 
 function bindEvents() {
@@ -33,7 +35,9 @@ function bindEvents() {
 
       applySettingsToControls();
       saveSettings();
-      setMessage("设置已选好，点“新题开始”后生效。", "good");
+      if (!syncCultivationWithSettings()) {
+        setMessage("设置已选好，点“新题开始”后生效。", "good");
+      }
     });
   });
 
@@ -91,6 +95,9 @@ function startNewGame() {
   state.usedHint = false;
   state.rewardGranted = false;
   state.currentReward = null;
+  state.outcomeGranted = false;
+  state.currentOutcome = null;
+  updateCultivationChip();
   hideNumberPad();
   state.startedAt = Date.now();
   state.solution = [];

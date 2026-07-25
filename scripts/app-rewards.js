@@ -206,9 +206,10 @@ function renderRewardReveal(reward) {
   els.rewardReveal.dataset.tier = String(tier);
   els.resultCollectionButton.hidden = false;
   els.resultDialog.classList.add("has-reward");
-  applyStickerTheme(els.rewardStickerArt, sticker, level);
+  const form = getStickerForm(sticker.id);
+  applyStickerTheme(els.rewardStickerArt, sticker, level, form);
   els.rewardStickerArt.dataset.reveal = upgraded ? "upgrade" : isNew ? "new" : "repeat";
-  renderStickerGraphic(els.rewardStickerSymbol, sticker);
+  renderStickerGraphic(els.rewardStickerSymbol, sticker, form);
   els.rewardTierLabel.textContent = `${REWARD_TIER_INFO[tier].shortName} · ${REWARD_TIER_INFO[tier].name}`;
   els.rewardStickerName.textContent = sticker.name;
   renderStars(els.rewardStickerStars, level, upgraded ? level : 0);
@@ -220,6 +221,11 @@ function renderRewardReveal(reward) {
     els.rewardMessage.textContent = `贴纸变得更闪亮了！现在是 ${level} 星贴纸。`;
   } else {
     els.rewardMessage.textContent = `这位朋友又来啦，已经收集了 ${count} 次。`;
+  }
+
+  // 1 至 3 级不做进化，整档集满三星后引导去挑战更高难度。
+  if (tier <= 3 && level === 3 && isTierFullyMaxed(tier)) {
+    els.rewardMessage.textContent = `${REWARD_TIER_INFO[tier].shortName}「${REWARD_TIER_INFO[tier].name}」的贴纸已经全部集满三星啦！去挑战下一个等级吧。`;
   }
 }
 
@@ -265,16 +271,18 @@ function stopStickerAnimation(art, stars) {
   stars.classList.remove("is-animating");
 }
 
-function applyStickerTheme(element, sticker, level = 0) {
+function applyStickerTheme(element, sticker, level = 0, form = 0) {
   element.style.setProperty("--sticker-a", sticker.colors[0]);
   element.style.setProperty("--sticker-b", sticker.colors[1]);
   element.style.setProperty("--sticker-ink", sticker.ink);
   element.dataset.tier = String(sticker.tier);
-  element.dataset.level = String(level);
+  // 进化形态有自己的画面，不再叠加星级边框和铭牌。
+  element.dataset.level = String(form > 0 ? 0 : level);
+  element.dataset.form = String(form);
   element.classList.toggle("has-sprite", Boolean(sticker.spritePosition));
 }
 
-function renderStickerGraphic(element, sticker) {
+function renderStickerGraphic(element, sticker, form = 0) {
   element.className = sticker.spritePosition ? "sticker-sprite" : "sticker-symbol";
   element.textContent = sticker.spritePosition ? "" : sticker.symbol;
   element.style.removeProperty("--sprite-position");
@@ -282,8 +290,20 @@ function renderStickerGraphic(element, sticker) {
 
   if (sticker.spritePosition) {
     element.style.setProperty("--sprite-position", sticker.spritePosition);
-    element.style.setProperty("--sprite-image", `url('${sticker.spriteImage}')`);
+    element.style.setProperty("--sprite-image", `url('${getStickerArtImage(sticker, form)}')`);
   }
+}
+
+function renderCollectionIfOpen() {
+  if (els.collectionDialog.open) {
+    renderCollection();
+  }
+}
+
+function isTierFullyMaxed(tier) {
+  return STICKER_CATALOG.filter((sticker) => sticker.tier === tier).every((sticker) => {
+    return (rewardCollection.stickers[sticker.id]?.count ?? 0) >= 4;
+  });
 }
 
 function openCollection() {
@@ -354,13 +374,14 @@ function createStickerCard(sticker) {
     card.addEventListener("click", () => openStickerPreview(sticker, count, level));
   }
 
+  const form = count ? getStickerForm(sticker.id) : 0;
   const art = document.createElement("div");
   art.className = "sticker-art sticker-card-art";
-  applyStickerTheme(art, sticker, level);
+  applyStickerTheme(art, sticker, level, form);
 
   const symbol = document.createElement("span");
   if (count) {
-    renderStickerGraphic(symbol, sticker);
+    renderStickerGraphic(symbol, sticker, form);
   } else {
     symbol.className = "sticker-symbol";
     symbol.textContent = "✦";
@@ -383,19 +404,32 @@ function createStickerCard(sticker) {
   quantity.textContent = count ? `收集 ×${count}` : "完成对应难度来寻找";
   copy.append(name, stars, quantity);
   card.append(art, copy);
+
+  if (count && isEvolvableSticker(sticker) && level === 3) {
+    const badge = document.createElement("span");
+    badge.className = "sticker-form-badge";
+    badge.dataset.form = String(form);
+    badge.textContent = form >= EVOLUTION_MAX_FORM ? "最终形态" : form > 0 ? `进化 ${form}` : "可进化";
+    card.append(badge);
+  }
+
   return card;
 }
 
 function openStickerPreview(sticker, count, level) {
+  // 星级历程 + 已解锁的进化形态串成一条时间线，默认停在最新形态。
+  const maxIndex = getPreviewStageCount(sticker, count);
   stickerPreviewState = {
     sticker,
     count,
     maxLevel: level,
-    displayedLevel: level,
+    maxIndex,
+    displayedLevel: maxIndex,
   };
   els.stickerPreviewTier.textContent = `${REWARD_TIER_INFO[sticker.tier].shortName} · ${REWARD_TIER_INFO[sticker.tier].name}`;
   els.stickerPreviewName.textContent = sticker.name;
-  renderStickerPreviewLevel(level);
+  renderStickerPreviewLevel(stickerPreviewState.displayedLevel);
+  renderEvolutionPanel(sticker, count);
 
   if (typeof els.stickerPreviewDialog.showModal === "function") {
     els.stickerPreviewDialog.showModal();
@@ -404,6 +438,7 @@ function openStickerPreview(sticker, count, level) {
   }
 
   restartStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
+  playEvolutionPanelEnergyFill();
 }
 
 function changeStickerPreviewLevel(direction) {
@@ -412,7 +447,7 @@ function changeStickerPreviewLevel(direction) {
   }
 
   const nextLevel = Math.min(
-    stickerPreviewState.maxLevel,
+    stickerPreviewState.maxIndex,
     Math.max(0, stickerPreviewState.displayedLevel + direction)
   );
 
@@ -428,31 +463,32 @@ function renderStickerPreviewLevel(level, animate = false) {
     return;
   }
 
-  const { sticker, count, maxLevel } = stickerPreviewState;
-  const displayedLevel = Math.min(maxLevel, Math.max(0, level));
+  const { sticker, count, maxIndex } = stickerPreviewState;
+  const displayedLevel = Math.min(maxIndex, Math.max(0, level));
   stickerPreviewState.displayedLevel = displayedLevel;
+  const stage = describePreviewStage(displayedLevel);
 
-  applyStickerTheme(els.stickerPreviewArt, sticker, displayedLevel);
-  renderStickerGraphic(els.stickerPreviewSymbol, sticker);
-  renderStars(els.stickerPreviewStars, displayedLevel);
-  els.stickerPreviewLevelLabel.textContent = STICKER_LEVEL_INFO[displayedLevel].label;
-  els.stickerPreviewCount.textContent = displayedLevel === maxLevel
-    ? `当前收藏形态 · 已收集 ${count} 次`
-    : `形态回顾 ${displayedLevel + 1}/${maxLevel + 1} · 最高已达到 ${STICKER_LEVEL_INFO[maxLevel].shortLabel}`;
+  applyStickerTheme(els.stickerPreviewArt, sticker, stage.level, stage.form);
+  renderStickerGraphic(els.stickerPreviewSymbol, sticker, stage.form);
+  renderStars(els.stickerPreviewStars, stage.level);
+  els.stickerPreviewLevelLabel.textContent = stage.label;
+  els.stickerPreviewCount.textContent = displayedLevel === maxIndex
+    ? `当前形态 · 已收集 ${count} 次`
+    : `形态回顾 ${displayedLevel + 1}/${maxIndex + 1} · 最新是${describePreviewStage(maxIndex).label}`;
 
-  els.previousStickerLevelButton.hidden = maxLevel === 0;
-  els.nextStickerLevelButton.hidden = maxLevel === 0;
+  els.previousStickerLevelButton.hidden = maxIndex === 0;
+  els.nextStickerLevelButton.hidden = maxIndex === 0;
   els.previousStickerLevelButton.disabled = displayedLevel === 0;
-  els.nextStickerLevelButton.disabled = displayedLevel === maxLevel;
+  els.nextStickerLevelButton.disabled = displayedLevel === maxIndex;
   els.previousStickerLevelButton.setAttribute(
     "aria-label",
-    displayedLevel > 0 ? `查看${STICKER_LEVEL_INFO[displayedLevel - 1].label}` : "已经是最初形态"
+    displayedLevel > 0 ? `查看${describePreviewStage(displayedLevel - 1).label}` : "已经是最初形态"
   );
   els.nextStickerLevelButton.setAttribute(
     "aria-label",
-    displayedLevel < maxLevel ? `查看${STICKER_LEVEL_INFO[displayedLevel + 1].label}` : "已经是当前最高形态"
+    displayedLevel < maxIndex ? `查看${describePreviewStage(displayedLevel + 1).label}` : "已经是当前最新形态"
   );
-  renderStickerPreviewLevelDots(maxLevel, displayedLevel);
+  renderStickerPreviewLevelDots(maxIndex, displayedLevel);
 
   if (animate) {
     restartStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
@@ -462,12 +498,13 @@ function renderStickerPreviewLevel(level, animate = false) {
 function renderStickerPreviewLevelDots(maxLevel, displayedLevel) {
   const fragment = document.createDocumentFragment();
 
+  // 时间线上只有已经拿到的形态，所以每一格都是已达成的。
   for (let level = 0; level <= maxLevel; level += 1) {
     const dot = document.createElement("span");
     dot.className = "sticker-preview-level-dot";
     dot.classList.toggle("is-active", level === displayedLevel);
-    dot.classList.toggle("is-reached", level <= maxLevel);
-    dot.title = STICKER_LEVEL_INFO[level].label;
+    dot.classList.add("is-reached");
+    dot.title = describePreviewStage(level).label;
     fragment.append(dot);
   }
 
@@ -476,6 +513,7 @@ function renderStickerPreviewLevelDots(maxLevel, displayedLevel) {
 }
 
 function closeStickerPreview() {
+  hideEvolutionPanel();
   stopStickerAnimation(els.stickerPreviewArt, els.stickerPreviewStars);
   if (typeof els.stickerPreviewDialog.close === "function") {
     els.stickerPreviewDialog.close();

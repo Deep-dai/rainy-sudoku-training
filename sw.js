@@ -1,18 +1,23 @@
-const CACHE_NAME = "rainy-sudoku-v26";
+const CACHE_NAME = "rainy-sudoku-v36";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=26",
-  "./scripts/app-state.js?v=26",
-  "./scripts/app-game.js?v=26",
-  "./scripts/app-ui.js?v=26",
-  "./scripts/app-rules.js?v=26",
-  "./scripts/app-rewards.js?v=26",
-  "./scripts/app-utils.js?v=26",
+  "./styles.css?v=36",
+  "./scripts/app-state.js?v=36",
+  "./scripts/app-game.js?v=36",
+  "./scripts/app-ui.js?v=36",
+  "./scripts/app-rules.js?v=36",
+  "./scripts/app-rewards.js?v=36",
+  "./scripts/app-evolution.js?v=36",
+  "./scripts/app-utils.js?v=36",
   "./assets/stickers/tier-2-cute.jpg",
   "./assets/stickers/tier-3-magic.jpg",
   "./assets/stickers/tier-4-plush.jpg",
   "./assets/stickers/tier-5-friends.jpg",
+  "./assets/stickers/tier-4-evo1.png",
+  "./assets/stickers/tier-4-evo2.png",
+  "./assets/stickers/tier-5-evo1.png",
+  "./assets/stickers/tier-5-evo2.png",
   "./manifest.webmanifest",
   "./app-icon.svg"
 ];
