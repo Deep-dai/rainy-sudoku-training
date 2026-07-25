@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./app-icon.svg">
-    <link rel="stylesheet" href="./styles.css?v=36">
+    <link rel="stylesheet" href="./styles.css?v=37">
   </head>
   <body>
     <main class="app-shell">
@@ -188,7 +188,15 @@
       </section>
 
       <div class="number-pad floating-pad is-hidden" id="numberPad" aria-label="数字键盘" aria-hidden="true"></div>
+
+      <p class="app-version" id="appVersion" aria-label="版本号"></p>
     </main>
+
+    <div class="update-toast" id="updateToast" role="alert" hidden>
+      <span class="update-toast-text">有新版本啦 🎉</span>
+      <button class="update-toast-button" id="updateRefreshButton" type="button">点这里更新</button>
+      <button class="update-toast-close" id="updateDismissButton" type="button" aria-label="以后再说">×</button>
+    </div>
 
     <dialog class="result-dialog" id="resultDialog">
       <div class="result-content">
@@ -300,12 +308,12 @@
       </div>
     </dialog>
 
-    <script src="./scripts/app-state.js?v=36" defer></script>
-    <script src="./scripts/app-game.js?v=36" defer></script>
-    <script src="./scripts/app-ui.js?v=36" defer></script>
-    <script src="./scripts/app-rules.js?v=36" defer></script>
-    <script src="./scripts/app-rewards.js?v=36" defer></script>
-    <script src="./scripts/app-evolution.js?v=36" defer></script>
-    <script src="./scripts/app-utils.js?v=36" defer></script>
+    <script src="./scripts/app-state.js?v=37" defer></script>
+    <script src="./scripts/app-game.js?v=37" defer></script>
+    <script src="./scripts/app-ui.js?v=37" defer></script>
+    <script src="./scripts/app-rules.js?v=37" defer></script>
+    <script src="./scripts/app-rewards.js?v=37" defer></script>
+    <script src="./scripts/app-evolution.js?v=37" defer></script>
+    <script src="./scripts/app-utils.js?v=37" defer></script>
   </body>
 </html>

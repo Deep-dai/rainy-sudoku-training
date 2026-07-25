@@ -1,15 +1,15 @@
-const CACHE_NAME = "rainy-sudoku-v36";
+const CACHE_NAME = "rainy-sudoku-v37";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=36",
-  "./scripts/app-state.js?v=36",
-  "./scripts/app-game.js?v=36",
-  "./scripts/app-ui.js?v=36",
-  "./scripts/app-rules.js?v=36",
-  "./scripts/app-rewards.js?v=36",
-  "./scripts/app-evolution.js?v=36",
-  "./scripts/app-utils.js?v=36",
+  "./styles.css?v=37",
+  "./scripts/app-state.js?v=37",
+  "./scripts/app-game.js?v=37",
+  "./scripts/app-ui.js?v=37",
+  "./scripts/app-rules.js?v=37",
+  "./scripts/app-rewards.js?v=37",
+  "./scripts/app-evolution.js?v=37",
+  "./scripts/app-utils.js?v=37",
   "./assets/stickers/tier-2-cute.jpg",
   "./assets/stickers/tier-3-magic.jpg",
   "./assets/stickers/tier-4-plush.jpg",
@@ -26,7 +26,14 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_ASSETS))
   );
-  self.skipWaiting();
+  // 不再自动 skipWaiting：新版本先等着，让页面弹出“点这里更新”，由用户决定何时刷新。
+});
+
+// 用户点了“更新”按钮后，页面发来这条消息，新版本立刻接管。
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {

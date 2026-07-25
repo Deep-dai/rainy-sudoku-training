@@ -45,6 +45,10 @@ const COPY = {
 
 const els = {
   app: document.querySelector(".app-shell"),
+  appVersion: document.querySelector("#appVersion"),
+  updateToast: document.querySelector("#updateToast"),
+  updateRefreshButton: document.querySelector("#updateRefreshButton"),
+  updateDismissButton: document.querySelector("#updateDismissButton"),
   board: document.querySelector("#sudokuBoard"),
   numberPad: document.querySelector("#numberPad"),
   newGameButton: document.querySelector("#newGameButton"),

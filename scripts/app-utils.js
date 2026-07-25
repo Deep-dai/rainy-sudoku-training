@@ -274,12 +274,85 @@ function saveSettings() {
   }));
 }
 
+// 发布时和 sw.js 的 CACHE_NAME 一起改这一个数字即可。
+const APP_VERSION = "37";
+
 function registerServiceWorker() {
+  // 角落里显示当前版本号，方便一眼看出 iPad 上是新是旧。
+  if (els.appVersion) {
+    els.appVersion.textContent = `v${APP_VERSION}`;
+  }
+
   if (!("serviceWorker" in navigator) || !window.isSecureContext) {
     return;
   }
 
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+  // 只有“旧版本被新版本顶替”时才自动刷新；首次安装不刷，免得白闪一下。
+  if (navigator.serviceWorker.controller) {
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloading) {
+        return;
+      }
+      reloading = true;
+      window.location.reload();
+    });
+  }
+
+  navigator.serviceWorker
+    .register("./sw.js")
+    .then((registration) => {
+      // 上次已经下载好、还没点更新的新版本。
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        showUpdateToast(registration);
+      }
+
+      registration.addEventListener("updatefound", () => {
+        const incoming = registration.installing;
+        if (!incoming) {
+          return;
+        }
+        incoming.addEventListener("statechange", () => {
+          // 新版本已就绪，且当前有旧版本在跑 —— 说明是一次更新。
+          if (incoming.state === "installed" && navigator.serviceWorker.controller) {
+            showUpdateToast(registration);
+          }
+        });
+      });
+    })
+    .catch(() => {});
+}
+
+// 弹出“有新版本”提示条；点刷新键让等待中的新版本接管并重新加载。
+function showUpdateToast(registration) {
+  if (!els.updateToast) {
+    return;
+  }
+
+  els.updateToast.hidden = false;
+  els.updateToast.classList.add("is-visible");
+
+  if (els.updateRefreshButton && !els.updateRefreshButton.dataset.bound) {
+    els.updateRefreshButton.dataset.bound = "1";
+    els.updateRefreshButton.addEventListener("click", () => {
+      const waiting = registration.waiting;
+      if (waiting) {
+        // 让等待中的新版本立刻接管；controllerchange 会触发上面的自动刷新。
+        waiting.postMessage({ type: "SKIP_WAITING" });
+      } else {
+        window.location.reload();
+      }
+    });
+  }
+
+  // “以后再说”：先收起提示条，让她把这局做完；下次打开还会再提醒。
+  if (els.updateDismissButton && !els.updateDismissButton.dataset.bound) {
+    els.updateDismissButton.dataset.bound = "1";
+    els.updateDismissButton.addEventListener("click", () => {
+      els.updateToast.hidden = true;
+      els.updateToast.classList.remove("is-visible");
+    });
+  }
 }
 
 function clampMinutes(value) {

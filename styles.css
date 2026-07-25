@@ -3249,3 +3249,85 @@ dialog.evolution-burst::backdrop {
     transition-duration: 1ms !important;
   }
 }
+
+/* 底部小小的版本号，方便一眼确认线上是新是旧 */
+.app-version {
+  margin: 14px 0 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(54, 83, 107, 0.42);
+}
+
+/* “有新版本”提示条：默认隐藏，检测到更新才弹出 */
+.update-toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3ab7a6, #2f9fd0);
+  box-shadow: 0 12px 28px rgba(47, 159, 208, 0.42);
+  color: #fff;
+  animation: update-toast-in 320ms cubic-bezier(0.22, 0.9, 0.28, 1);
+}
+
+.update-toast[hidden] {
+  display: none;
+}
+
+.update-toast-text {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.update-toast-button {
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f7a8c;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 3px 8px rgba(31, 122, 140, 0.25);
+}
+
+.update-toast-button:active {
+  transform: scale(0.96);
+}
+
+.update-toast-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+
+.update-toast-close:active {
+  transform: scale(0.92);
+}
+
+@keyframes update-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

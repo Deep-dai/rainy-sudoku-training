@@ -711,5 +711,26 @@ assert.match(evolutionScript, /function buildEvolutionBurstParticles\(\)/);
 // 只有真正进化的那一局才播放全屏特效。
 assert.match(fs.readFileSync("scripts/app-utils.js", "utf8"), /if \(options\.evolution\.evolved\) \{\s*\n\s*playEvolutionBurst\(options\.evolution\);/);
 
+// 版本号必须三处一致：APP_VERSION（页面角标）、sw.js 缓存名、index.html 资源查询串。
+const utilsSource = fs.readFileSync("scripts/app-utils.js", "utf8");
+const swSource = fs.readFileSync("sw.js", "utf8");
+const indexSource = fs.readFileSync("index.html", "utf8");
+const appVersion = utilsSource.match(/const APP_VERSION = "(\d+)"/)[1];
+const swVersion = swSource.match(/rainy-sudoku-v(\d+)/)[1];
+const indexVersions = [...indexSource.matchAll(/\?v=(\d+)/g)].map((m) => m[1]);
+assert.equal(swVersion, appVersion, "sw.js 缓存版本要和 APP_VERSION 一致");
+indexVersions.forEach((version) => {
+  assert.equal(version, appVersion, "index.html 里每个 ?v= 都要等于 APP_VERSION");
+});
+
+// 更新提示：SW 不再自动 skipWaiting，改由页面点“更新”后发消息触发。
+// skipWaiting 只应出现一次，且落在 message 处理器里（而非 install 里自动执行）。
+const skipWaitingCount = (swSource.match(/self\.skipWaiting\(\)/g) || []).length;
+assert.equal(skipWaitingCount, 1, "skipWaiting 应只在 message 处理里出现一次");
+assert.match(swSource, /addEventListener\("message"[\s\S]*?SKIP_WAITING[\s\S]*?self\.skipWaiting\(\)/);
+assert.match(utilsSource, /function showUpdateToast\(registration\)/);
+assert.match(utilsSource, /postMessage\(\{ type: "SKIP_WAITING" \}\)/);
+assert.match(utilsSource, /updatefound/);
+
 console.log("Reward tests passed: mapping, tier probability, draw weighting, duplicate guard, upgrades, hint badge, storage recovery, and submission paths.");
 console.log("Evolution tests passed: qualifier gating, energy weights, record bonus, threshold carry-over, three-star gate, targeted vs free play, cultivation sync, and storage sanitising.");
