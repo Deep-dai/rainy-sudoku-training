@@ -29,7 +29,11 @@ const REWARD_DIFFICULTY_MAP = {
 
 const REWARD_TIER_CHANCES = {
   "9:very": [
-    { tier: 4, upperBound: 0.8 },
+    { tier: 4, upperBound: 0.5 },
+    { tier: 5, upperBound: 1 },
+  ],
+  "9:expert": [
+    { tier: 4, upperBound: 0.5 },
     { tier: 5, upperBound: 1 },
   ],
 };
@@ -138,6 +142,11 @@ function selectRewardTier(size, difficulty, random = Math.random) {
   const chances = REWARD_TIER_CHANCES[`${size}:${difficulty}`];
   if (!chances) {
     return getRewardTier(size, difficulty);
+  }
+
+  // 四级贴纸集满三星并全部完成两段进化后，这两个 9 阶难度只发五级奖励。
+  if (isTierFullyProgressed(4)) {
+    return 5;
   }
 
   const roll = random();
@@ -304,6 +313,20 @@ function isTierFullyMaxed(tier) {
   return STICKER_CATALOG.filter((sticker) => sticker.tier === tier).every((sticker) => {
     return (rewardCollection.stickers[sticker.id]?.count ?? 0) >= 4;
   });
+}
+
+function isTierFullyProgressed(tier) {
+  const tierStickers = STICKER_CATALOG.filter((sticker) => sticker.tier === tier);
+  if (!isTierFullyMaxed(tier)) {
+    return false;
+  }
+
+  // 进化脚本尚未载入时不能把“满三星”误判成“全部满级”。
+  if (typeof getStickerForm !== "function" || typeof EVOLUTION_MAX_FORM === "undefined") {
+    return false;
+  }
+
+  return tierStickers.every((sticker) => getStickerForm(sticker.id) >= EVOLUTION_MAX_FORM);
 }
 
 function openCollection() {

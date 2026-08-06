@@ -196,13 +196,17 @@ assert.match(rewardScript, /初始形态 · 无星/);
 
 const tierChanceResults = vm.runInContext(`[
   selectRewardTier(9, "very", () => 0),
-  selectRewardTier(9, "very", () => 0.799999),
-  selectRewardTier(9, "very", () => 0.8),
+  selectRewardTier(9, "very", () => 0.499999),
+  selectRewardTier(9, "very", () => 0.5),
   selectRewardTier(9, "very", () => 0.999999),
-  selectRewardTier(9, "super", () => 0.99),
   selectRewardTier(9, "expert", () => 0),
+  selectRewardTier(9, "expert", () => 0.499999),
+  selectRewardTier(9, "expert", () => 0.5),
+  selectRewardTier(9, "expert", () => 0.999999),
+  selectRewardTier(9, "super", () => 0.99),
+  selectRewardTier(9, "master", () => 0),
 ]`, context);
-assert.deepEqual([...tierChanceResults], [4, 4, 5, 5, 3, 5]);
+assert.deepEqual([...tierChanceResults], [4, 4, 5, 5, 4, 4, 5, 5, 3, 5]);
 
 const mixedGrantTier = vm.runInContext(`(() => {
   rewardCollection = createEmptyRewardCollection();
@@ -285,6 +289,50 @@ assert.deepEqual(Object.keys(recovered.stickers), []);
 
 vm.runInContext(fs.readFileSync("scripts/app-evolution.js", "utf8"), context, {
   filename: "scripts/app-evolution.js",
+});
+
+// 四级整档“满级”必须同时满足：四张均为三星、四张均完成进化 2。
+const tierProgressionGate = JSON.parse(JSON.stringify(vm.runInContext(`(() => {
+  rewardCollection = createEmptyRewardCollection();
+  evolutionCollection = createEmptyEvolutionCollection();
+  const tier4 = STICKER_CATALOG.filter((sticker) => sticker.tier === 4);
+
+  tier4.forEach((sticker) => {
+    rewardCollection.stickers[sticker.id] = { count: 4 };
+    evolutionCollection.stickers[sticker.id] = { form: 2, energy: 0, plays: 10 };
+  });
+  const complete = {
+    starsMaxed: isTierFullyMaxed(4),
+    fullyProgressed: isTierFullyProgressed(4),
+    veryTier: selectRewardTier(9, "very", () => 0),
+    expertTier: selectRewardTier(9, "expert", () => 0),
+  };
+
+  const lastSticker = tier4[tier4.length - 1];
+  evolutionCollection.stickers[lastSticker.id].form = 1;
+  const evolutionIncomplete = {
+    starsMaxed: isTierFullyMaxed(4),
+    fullyProgressed: isTierFullyProgressed(4),
+    veryTier: selectRewardTier(9, "very", () => 0),
+    expertTier: selectRewardTier(9, "expert", () => 0),
+  };
+
+  evolutionCollection.stickers[lastSticker.id].form = 2;
+  rewardCollection.stickers[lastSticker.id].count = 3;
+  const starsIncomplete = {
+    starsMaxed: isTierFullyMaxed(4),
+    fullyProgressed: isTierFullyProgressed(4),
+    veryTier: selectRewardTier(9, "very", () => 0),
+    expertTier: selectRewardTier(9, "expert", () => 0),
+  };
+
+  return { complete, evolutionIncomplete, starsIncomplete };
+})()`, context)));
+
+assert.deepEqual(tierProgressionGate, {
+  complete: { starsMaxed: true, fullyProgressed: true, veryTier: 5, expertTier: 5 },
+  evolutionIncomplete: { starsMaxed: true, fullyProgressed: false, veryTier: 4, expertTier: 4 },
+  starsIncomplete: { starsMaxed: false, fullyProgressed: false, veryTier: 4, expertTier: 4 },
 });
 
 vm.runInContext(fs.readFileSync("scripts/app-rules.js", "utf8"), context, {
@@ -528,6 +576,10 @@ assert.deepEqual(targetedOutcome, { hasReward: false, hasEvolution: true, target
 const freePlayOutcome = JSON.parse(JSON.stringify(vm.runInContext(`(() => {
   rewardCollection = createEmptyRewardCollection();
   evolutionCollection = createEmptyEvolutionCollection();
+  STICKER_CATALOG.filter((sticker) => sticker.tier === 4).forEach((sticker) => {
+    rewardCollection.stickers[sticker.id] = { count: 4 };
+    evolutionCollection.stickers[sticker.id] = { form: 2, energy: 0, plays: 10 };
+  });
   STICKER_CATALOG.filter((sticker) => sticker.tier === 5).forEach((sticker) => {
     rewardCollection.stickers[sticker.id] = { count: 4 };
   });
@@ -545,6 +597,10 @@ const freePlayOutcome = JSON.parse(JSON.stringify(vm.runInContext(`(() => {
 
   rewardCollection = createEmptyRewardCollection();
   evolutionCollection = createEmptyEvolutionCollection();
+  STICKER_CATALOG.filter((sticker) => sticker.tier === 4).forEach((sticker) => {
+    rewardCollection.stickers[sticker.id] = { count: 4 };
+    evolutionCollection.stickers[sticker.id] = { form: 2, energy: 0, plays: 10 };
+  });
   STICKER_CATALOG.filter((sticker) => sticker.tier === 5).forEach((sticker) => {
     rewardCollection.stickers[sticker.id] = { count: 1 };
   });
@@ -711,16 +767,22 @@ assert.match(evolutionScript, /function buildEvolutionBurstParticles\(\)/);
 // 只有真正进化的那一局才播放全屏特效。
 assert.match(fs.readFileSync("scripts/app-utils.js", "utf8"), /if \(options\.evolution\.evolved\) \{\s*\n\s*playEvolutionBurst\(options\.evolution\);/);
 
-// 版本号必须三处一致：APP_VERSION（页面角标）、sw.js 缓存名、index.html 资源查询串。
+// 版本号必须三处一致：APP_VERSION（页面角标）、sw.js 缓存及资源、index.html 资源查询串。
 const utilsSource = fs.readFileSync("scripts/app-utils.js", "utf8");
 const swSource = fs.readFileSync("sw.js", "utf8");
 const indexSource = fs.readFileSync("index.html", "utf8");
 const appVersion = utilsSource.match(/const APP_VERSION = "(\d+)"/)[1];
 const swVersion = swSource.match(/rainy-sudoku-v(\d+)/)[1];
 const indexVersions = [...indexSource.matchAll(/\?v=(\d+)/g)].map((m) => m[1]);
+const swAssetVersions = [...swSource.matchAll(/\?v=(\d+)/g)].map((m) => m[1]);
 assert.equal(swVersion, appVersion, "sw.js 缓存版本要和 APP_VERSION 一致");
+assert.equal(indexVersions.length, 8, "index.html 应包含样式和 7 个脚本的版本号");
+assert.equal(swAssetVersions.length, 8, "sw.js 应缓存带版本号的样式和 7 个脚本");
 indexVersions.forEach((version) => {
   assert.equal(version, appVersion, "index.html 里每个 ?v= 都要等于 APP_VERSION");
+});
+swAssetVersions.forEach((version) => {
+  assert.equal(version, appVersion, "sw.js 里每个资源 ?v= 都要等于 APP_VERSION");
 });
 
 // 更新提示：SW 不再自动 skipWaiting，改由页面点“更新”后发消息触发。
@@ -732,5 +794,5 @@ assert.match(utilsSource, /function showUpdateToast\(registration\)/);
 assert.match(utilsSource, /postMessage\(\{ type: "SKIP_WAITING" \}\)/);
 assert.match(utilsSource, /updatefound/);
 
-console.log("Reward tests passed: mapping, tier probability, draw weighting, duplicate guard, upgrades, hint badge, storage recovery, and submission paths.");
+console.log("Reward tests passed: mapping, tier probability, full-evolution gate, draw weighting, duplicate guard, upgrades, hint badge, storage recovery, and submission paths.");
 console.log("Evolution tests passed: qualifier gating, energy weights, record bonus, threshold carry-over, three-star gate, targeted vs free play, cultivation sync, and storage sanitising.");

@@ -56,11 +56,45 @@ for (const sample of samples) {
   assert.equal(sample.basicSolvable, true, "超级高手必须能用基础单数排除完成");
 }
 
+const competitionConfigs = JSON.parse(JSON.stringify(vm.runInContext(`({
+  very: getDifficultyConfig(9, "very"),
+  expert: getDifficultyConfig(9, "expert"),
+})`, context)));
+
+assert.deepEqual(competitionConfigs, {
+  very: { min: 35, max: 37, allowHiddenSingles: false },
+  expert: { min: 37, max: 37, allowHiddenSingles: true },
+});
+
+const competitionSamples = JSON.parse(JSON.stringify(vm.runInContext(`
+  ["very", "expert"].flatMap((difficulty) => {
+    return Array.from({ length: 10 }, () => {
+      const result = createPuzzle(9, difficulty);
+      const limits = getDifficultyConfig(9, difficulty);
+      return {
+        difficulty,
+        blankCount: result.puzzle.flat().filter((value) => !value).length,
+        solutions: countSolutions(result.puzzle, 9, 2),
+        basicSolvable: canSolveWithBasicLogic(result.puzzle, 9, Boolean(limits.allowHiddenSingles)),
+      };
+    });
+  })
+`, context)));
+
+for (const sample of competitionSamples) {
+  if (sample.difficulty === "expert") {
+    assert.equal(sample.blankCount, 37, "9 阶高手难度必须固定为 37 个空格");
+  } else {
+    assert.ok(sample.blankCount >= 35 && sample.blankCount <= 37, `9 阶非常简单空格数越界: ${sample.blankCount}`);
+  }
+  assert.equal(sample.solutions, 1, `9 阶 ${sample.difficulty} 必须保持唯一解`);
+  assert.equal(sample.basicSolvable, true, `9 阶 ${sample.difficulty} 必须保持既有基础解法边界`);
+}
+
 const regressionSamples = JSON.parse(JSON.stringify(vm.runInContext(`
   [
     { size: 6, difficulty: "expert" },
     { size: 9, difficulty: "super" },
-    { size: 9, difficulty: "expert" },
   ].map(({ size, difficulty }) => {
     const result = createPuzzle(size, difficulty);
     const limits = getDifficultyConfig(size, difficulty);
@@ -82,4 +116,4 @@ for (const sample of regressionSamples) {
   assert.equal(sample.basicSolvable, true, `${sample.size} 阶 ${sample.difficulty} 的既有基础策略边界不应改变`);
 }
 
-console.log(JSON.stringify({ elapsedMs: Date.now() - startedAt, samples, regressionSamples }, null, 2));
+console.log(JSON.stringify({ elapsedMs: Date.now() - startedAt, samples, competitionSamples, regressionSamples }, null, 2));

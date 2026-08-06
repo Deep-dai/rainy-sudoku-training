@@ -275,7 +275,7 @@ function saveSettings() {
 }
 
 // 发布时和 sw.js 的 CACHE_NAME 一起改这一个数字即可。
-const APP_VERSION = "37";
+const APP_VERSION = "38";
 
 function registerServiceWorker() {
   // 角落里显示当前版本号，方便一眼看出 iPad 上是新是旧。

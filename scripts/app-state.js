@@ -15,8 +15,8 @@ const SIZE_CONFIG = {
     boxCols: 3,
     blanks: {
       super: { min: 18, max: 25, allowHiddenSingles: false, openingSingles: 5 },
-      very: { min: 25, max: 30, allowHiddenSingles: false },
-      expert: { min: 38, max: 44, allowHiddenSingles: true },
+      very: { min: 35, max: 37, allowHiddenSingles: false },
+      expert: { min: 37, max: 37, allowHiddenSingles: true },
       master: {
         min: 44,
         max: 47,
